@@ -1,0 +1,59 @@
+{
+    "name": "@zuze/pubsub",
+    "version": "1.0.0",
+    "author": "akmjenkins",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zuze-lab/pubsub"
+    },
+    "description": "A functional minimalist pubsub implementation with utilities",
+    "keywords": [
+        "event",
+        "eventbus",
+        "pubsub",
+        "eventemitter",
+        "publish/subscribe",
+        "functional"
+    ],
+    "main": "build/index.js",
+    "module": "index.js",
+    "browser": "build/bundle.min.js",
+    "types": "index.d.ts",
+    "scripts": {
+        "prepublishOnly": "yarn test && yarn test:typescript && yarn build",
+        "build": "rimraf build && babel index.js -d build && rollup -c ",
+        "lint": "eslint index.js",
+        "test:ci": "yarn test:typescript && jest --coverage --coverageReporters=text-lcov | coveralls",
+        "test": "jest  --testPathPattern=test.js",
+        "test:typescript": "jest --config jest.tsconfig.js --testPathPattern=test.ts"
+    },
+    "files": [
+        "build",
+        "index.js",
+        "index.d.ts"
+    ],
+    "sideEffects": false,
+    "devDependencies": {
+        "@babel/cli": "^7.10.1",
+        "@babel/core": "^7.10.2",
+        "@babel/preset-env": "^7.10.2",
+        "@types/jest": "^25.2.1",
+        "babel-eslint": "^10.0.3",
+        "babel-jest": "^25.1.0",
+        "coveralls": "^3.0.9",
+        "eslint": "^6.4.0",
+        "eslint-config-prettier": "^6.3.0",
+        "eslint-plugin-import": "^2.21.1",
+        "eslint-plugin-jest": "^22.17.0",
+        "eslint-plugin-prettier": "^3.1.0",
+        "jest": "^25.1.0",
+        "prettier": "^1.18.2",
+        "reselect": "^4.0.0",
+        "rollup": "^2.15.0",
+        "rollup-plugin-terser": "^6.1.0",
+        "rollup-plugin-sourcemaps": "^0.6.2",
+        "ts-jest": "^25.3.1",
+        "typescript": "^3.6.4"
+    }
+}
