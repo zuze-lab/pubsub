@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
-import pipeable from './pipeable';
+import pipe from './pipe';
 import distinctUntilKeyChanged from './distinctUntilKeyChanged';
+import tap from './tap';
 
 describe('operators - distinctUntilKeyChanged', () => {
   let publish, subscribe;
@@ -16,7 +16,7 @@ describe('operators - distinctUntilKeyChanged', () => {
   it('should distinctUntilKeyChanged', () => {
     subscribe(
       'post',
-      pipe(distinctUntilKeyChanged('post_id'), pipeable(subscriber)),
+      pipe(distinctUntilKeyChanged('post_id'), tap(subscriber)),
     );
     publish('post', { post_id: 10 });
     publish('post', { post_id: 9 });
@@ -38,7 +38,7 @@ describe('operators - distinctUntilKeyChanged', () => {
           'post_title',
           (a, b) => a.substr(0, 3) === b.substr(0, 3),
         ),
-        pipeable(subscriber),
+        tap(subscriber),
       ),
     );
     publish('post', { post_title: 'Top ten gifts' });

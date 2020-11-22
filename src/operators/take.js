@@ -1,4 +1,8 @@
-import { interrupt } from './utils';
+import createOperator from './createOperator';
 
-export default (times, count = 0) =>
-  interrupt((c, ...args) => ++count <= times && c(...args));
+export default createOperator(times => {
+  let count = 0;
+  return next => (...args) => {
+    ++count <= times && next(...args);
+  };
+});

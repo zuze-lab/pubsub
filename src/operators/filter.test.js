@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import filter from './filter';
-import pipeable from './pipeable';
+import tap from './tap';
 
 describe('operators - filter', () => {
   let publish, subscribe;
@@ -18,7 +18,7 @@ describe('operators - filter', () => {
       'post',
       pipe(
         filter(({ post_id }) => post_id !== 10),
-        pipeable(subscriber),
+        tap(subscriber),
       ),
     );
 

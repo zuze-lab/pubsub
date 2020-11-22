@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import distinctKey from './distinctKey';
-import pipeable from './pipeable';
+import tap from './tap';
 
 describe('operators - distinct', () => {
   let publish, subscribe;
@@ -14,7 +14,7 @@ describe('operators - distinct', () => {
   });
 
   it('should distinctKey', () => {
-    subscribe('post', pipe(distinctKey('post_id'), pipeable(subscriber)));
+    subscribe('post', pipe(distinctKey('post_id'), tap(subscriber)));
     publish('post', { post_id: 10 });
     publish('post', { post_id: 9 });
     publish('post', { post_id: 10 });
@@ -23,12 +23,11 @@ describe('operators - distinct', () => {
   });
 
   it('should distinct with a custom comparator', () => {
-    const comparator = (a, b) => a.key === b.key;
     subscribe(
       'post',
       pipe(
         distinctKey('post_title', (a, b) => a.substr(0, 3) === b.substr(0, 3)),
-        pipeable(subscriber),
+        tap(subscriber),
       ),
     );
     publish('post', { post_title: 'Top ten gifts' });

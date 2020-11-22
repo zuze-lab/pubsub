@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import delay from './delay';
-import pipeable from './pipeable';
+import tap from './tap';
 
 jest.useFakeTimers();
 
@@ -16,7 +16,7 @@ describe('operators - delay', () => {
   });
 
   it('should delay', () => {
-    subscribe('post', pipe(delay(1000), pipeable(subscriber)));
+    subscribe('post', pipe(delay(1000), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     expect(subscriber).not.toHaveBeenCalled();

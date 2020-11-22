@@ -1,10 +1,9 @@
-import { interrupt } from './utils';
+import createOperator from './createOperator';
 
-export default (minSize, maxSize) => {
+export default createOperator((minSize, maxSize) => {
   const es = [];
-
-  return interrupt((c, ...args) => {
+  return next => (...args) => {
     es.push(...args);
-    if (!minSize || es.length >= +minSize) c(es.slice(maxSize * -1));
-  });
-};
+    if (!minSize || es.length >= +minSize) next(es.slice(maxSize * -1));
+  };
+});

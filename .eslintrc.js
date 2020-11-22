@@ -44,6 +44,33 @@ module.exports = {
   },
   overrides: [
     {
+      files: ['**/*.test.ts'],
+      env: {
+        es6: true,
+        jest: true,
+        node: true,
+      },  
+      "parser": "@typescript-eslint/parser",
+      "plugins": [
+          "@typescript-eslint",
+          "prettier"
+      ],      
+      rules: {
+        'no-unused-vars': 0,
+        'jest/no-disabled-tests': 0,
+        'jest/no-focused-tests': 'error',
+        'jest/no-identical-title': 'error',
+        'jest/prefer-to-have-length': 'warn',
+        'jest/valid-expect': 'error',
+      },
+      extends: [
+        'eslint:recommended',
+        'plugin:import/errors',
+        'plugin:import/warnings',
+        'plugin:jest/recommended',
+      ]          
+    },
+    {
       files: ['**/*.test.js'],
       env: {
         es6: true,

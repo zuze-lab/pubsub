@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import mapTo from './mapTo';
-import pipeable from './pipeable';
+import tap from './tap';
 
 describe('operators - mapTo', () => {
   let publish, subscribe;
@@ -14,7 +14,7 @@ describe('operators - mapTo', () => {
   });
 
   it('should mapTo', () => {
-    subscribe('post', pipe(mapTo('joe'), pipeable(subscriber)));
+    subscribe('post', pipe(mapTo('joe'), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     expect(subscriber).toHaveBeenCalledWith('joe');
