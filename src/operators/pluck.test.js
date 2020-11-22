@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import pluck from './pluck';
-import pipeable from './pipeable';
+import tap from './tap';
 
 describe('operators - pluck', () => {
   let publish, subscribe;
@@ -14,7 +14,7 @@ describe('operators - pluck', () => {
   });
 
   it('should pluck', () => {
-    subscribe('post', pipe(pluck('post_id'), pipeable(subscriber)));
+    subscribe('post', pipe(pluck('post_id'), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     expect(subscriber).toHaveBeenCalledWith(10);
@@ -23,7 +23,7 @@ describe('operators - pluck', () => {
   });
 
   it('should pluck nested', () => {
-    subscribe('post', pipe(pluck('comments', '0'), pipeable(subscriber)));
+    subscribe('post', pipe(pluck('comments', '0'), tap(subscriber)));
 
     publish('post', {
       post_id: 10,

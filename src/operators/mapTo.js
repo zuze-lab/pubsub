@@ -1,2 +1,3 @@
+import createOperator from './createOperator';
 import map from './map';
-export default m => map(() => m);
+export default createOperator(m => map(() => m));

@@ -1,4 +1,5 @@
-import { interrupt } from './utils';
+import createOperator from './createOperator';
 
-export default by =>
-  interrupt((c, ...args) => setTimeout(() => c(...args), by));
+export default createOperator(by => next => (...args) =>
+  setTimeout(() => next(...args), by),
+);

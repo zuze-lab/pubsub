@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import count from './count';
-import pipeable from './pipeable';
+import tap from './tap';
 
 describe('operators - count', () => {
   let publish, subscribe;
@@ -14,7 +14,7 @@ describe('operators - count', () => {
   });
 
   it('should count', () => {
-    subscribe('post', pipe(count(), pipeable(subscriber)));
+    subscribe('post', pipe(count(), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     expect(subscriber).toHaveBeenCalledWith(0, { post_id: 10 });
@@ -23,7 +23,7 @@ describe('operators - count', () => {
   });
 
   it('should count with a startAt', () => {
-    subscribe('post', pipe(count(5), pipeable(subscriber)));
+    subscribe('post', pipe(count(5), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     expect(subscriber).toHaveBeenCalledWith(5, { post_id: 10 });

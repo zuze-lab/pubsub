@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import map from './map';
-import pipeable from './pipeable';
+import tap from './tap';
 
 describe('operators - map', () => {
   let publish, subscribe;
@@ -18,7 +18,7 @@ describe('operators - map', () => {
       'post',
       pipe(
         map(({ post_id }) => post_id !== 10),
-        pipeable(subscriber),
+        tap(subscriber),
       ),
     );
 

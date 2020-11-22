@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import single from './single';
-import pipeable from './pipeable';
+import tap from './tap';
 
 describe('operators - single', () => {
   let publish, subscribe;
@@ -14,7 +14,7 @@ describe('operators - single', () => {
   });
 
   it('should single', () => {
-    subscribe('post', pipe(single(), pipeable(subscriber)));
+    subscribe('post', pipe(single(), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     publish('post', { post_id: 10 });

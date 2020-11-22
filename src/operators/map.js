@@ -1,2 +1,2 @@
-import { interrupt } from './utils';
-export default m => interrupt((c, ...args) => c(m(...args)));
+import createOperator from './createOperator';
+export default createOperator(m => next => (...args) => next(m(...args)));

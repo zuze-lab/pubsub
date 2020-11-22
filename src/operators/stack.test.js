@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import stack from './stack';
-import pipeable from './pipeable';
+import tap from './tap';
 
 describe('operators - stack', () => {
   let publish, subscribe;
@@ -14,7 +14,7 @@ describe('operators - stack', () => {
   });
 
   it('should stack', () => {
-    subscribe('post', pipe(stack(), pipeable(subscriber)));
+    subscribe('post', pipe(stack(), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     expect(subscriber).toHaveBeenCalledWith([{ post_id: 10 }]);
@@ -29,7 +29,7 @@ describe('operators - stack', () => {
   });
 
   it('should stack with a min size', () => {
-    subscribe('post', pipe(stack(2), pipeable(subscriber)));
+    subscribe('post', pipe(stack(2), tap(subscriber)));
     publish('post', { post_id: 10 });
     expect(subscriber).not.toHaveBeenCalled();
     publish('post', { post_id: 9 });

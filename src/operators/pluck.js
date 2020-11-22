@@ -1,4 +1,5 @@
-import { interrupt } from './utils';
+import createOperator from './createOperator';
 
-export default (...props) =>
-  interrupt((c, o) => c(props.reduce((acc, p) => acc[p], o)));
+export default createOperator((...props) => next => arg =>
+  next(props.reduce((acc, p) => acc[p], arg)),
+);

@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import every from './every';
-import pipeable from './pipeable';
+import tap from './tap';
 
 describe('operators - every', () => {
   let publish, subscribe;
@@ -14,7 +14,7 @@ describe('operators - every', () => {
   });
 
   it('should every', () => {
-    subscribe('post', pipe(every(2), pipeable(subscriber)));
+    subscribe('post', pipe(every(2), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     expect(subscriber).not.toHaveBeenCalled();

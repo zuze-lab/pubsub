@@ -1,4 +1,5 @@
-import { interrupt } from './utils';
+import createOperator from './createOperator';
 
-export default (startAt = 0) =>
-  interrupt((c, ...args) => c(startAt++, ...args));
+export default createOperator((startAt = 0) => next => (...args) =>
+  next(startAt++, ...args),
+);

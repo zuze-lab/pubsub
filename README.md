@@ -22,7 +22,7 @@ yarn add @zuze/pubsub
 Or just pull it in from the browser:
 
 ```html
-<script src="https://unpkg.com/@zuze/pubsub"></script>
+<script src="https://unpkg.com/@zuze-lab/pubsub"></script>
 <script>
     const { publish, subscribe } = pubsub.default();
     subscribe('someEvent',console.log);

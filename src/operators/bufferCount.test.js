@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import bufferCount from './bufferCount';
-import pipeable from './pipeable';
+import tap from './tap';
 
 describe('operators - bufferCount', () => {
   let publish, subscribe;
@@ -15,7 +15,7 @@ describe('operators - bufferCount', () => {
 
   it('should bufferCount', () => {
     // with no arguments this acts identially to stack
-    subscribe('post', pipe(bufferCount(), pipeable(subscriber)));
+    subscribe('post', pipe(bufferCount(), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     publish('post', { post_id: 9 });
@@ -28,7 +28,7 @@ describe('operators - bufferCount', () => {
   });
 
   it('should bufferCount with a bufferSize', () => {
-    subscribe('post', pipe(bufferCount(2), pipeable(subscriber)));
+    subscribe('post', pipe(bufferCount(2), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     expect(subscriber).not.toHaveBeenCalled();
@@ -39,7 +39,7 @@ describe('operators - bufferCount', () => {
   });
 
   it('should buffer count with an every', () => {
-    subscribe('post', pipe(bufferCount(2, 2), pipeable(subscriber)));
+    subscribe('post', pipe(bufferCount(2, 2), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     expect(subscriber).not.toHaveBeenCalled();

@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import skip from './skip';
-import pipeable from './pipeable';
+import tap from './tap';
 
 describe('operators - skip', () => {
   let publish, subscribe;
@@ -14,7 +14,7 @@ describe('operators - skip', () => {
   });
 
   it('should skip', () => {
-    subscribe('post', pipe(skip(2), pipeable(subscriber)));
+    subscribe('post', pipe(skip(2), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     publish('post', { post_id: 10 });

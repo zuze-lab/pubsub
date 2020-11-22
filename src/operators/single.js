@@ -1,4 +1,4 @@
 import take from './take';
-import pipeable from './pipeable';
+import createOperator from './createOperator';
 
-export default pipeable(take(1));
+export default createOperator(() => take(1));

@@ -1,7 +1,7 @@
 import pubsub from '../pubsub';
-import pipe from '../pipe';
+import pipe from './pipe';
 import pairwise from './pairwise';
-import pipeable from './pipeable';
+import tap from './tap';
 
 describe('operators - pairwise', () => {
   let publish, subscribe;
@@ -14,7 +14,7 @@ describe('operators - pairwise', () => {
   });
 
   it('should pairwise', () => {
-    subscribe('post', pipe(pairwise(), pipeable(subscriber)));
+    subscribe('post', pipe(pairwise(), tap(subscriber)));
 
     publish('post', { post_id: 10 });
     expect(subscriber).not.toHaveBeenCalled();
