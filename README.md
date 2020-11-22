@@ -107,7 +107,11 @@ got comment
 unsub(); // no further events will be logged
 ```
 
-## Utilities
+## Operators
+
+Shamelessly stolen from the concept of [RXJS](https://rxjs-dev.firebaseapp.com/guide/operators) operators. A PubSub operator is a higher order function that accepts some parameters and returns a function that accepts a subscriber callback.
+
+They are used to essentially modify/filter published events prior to the subscriber being called.
 
 - **`filter`**
 
@@ -148,7 +152,7 @@ import pubsub, { onlyOnce } from '@zuze/pubsub';
 
 const { publish, subscribe } = pubsub<Topics>();
 
-subscribe('post', onlyOnce(console.log));
+subscribe('post', onlyOnce()(console.log));
 publish('post', { post_id: 9 }); // logs { post_id: 9 }
 publish('post', { post_id: 10 }); // doesn't log!
 ```
