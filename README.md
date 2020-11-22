@@ -178,7 +178,7 @@ publish('post', { post_id: 9 }); // logs { post_id: 9 }
 publish('post', { post_id: 10 }); // doesn't log!
 ```
 
-- `**single**` - analogous to `take(1)`
+- **`single`** - analogous to **`take(1)`**
 
 - **`stack`**
 
@@ -210,7 +210,7 @@ subscribe(
     pipe(
         filter(({post_id}) => post_id === 10), // only emit events where the post_id is 10
         distinctUntilChanged(), // don't emit the same event twice in a row
-        stack(2), // wait until we have a minimum of two events
+        stack(2), // wait until we have a minimum of two events and then emit all as an ever increasing array
         pipeable(console.log) // our "real" subscriber - when used inside a pipe it must be wrapped in pipeable
     );    
 );
