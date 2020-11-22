@@ -109,7 +109,9 @@ unsub(); // no further events will be logged
 
 ## Operators
 
-Shamelessly stolen from the concept of [RXJS](https://rxjs-dev.firebaseapp.com/guide/operators) operators. A PubSub operator is a higher order function that accepts some parameters and returns a function that accepts a subscriber callback.
+Shamelessly stolen from the concept of [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operators.
+
+A PubSub operator is a higher order function that accepts some parameters and returns a function that accepts a subscriber callback. They can be used individually, but become super cool when used with [`pipe`](#pipe).
 
 They are used to essentially modify/filter published events prior to the subscriber being called.
 
@@ -118,12 +120,14 @@ They are used to essentially modify/filter published events prior to the subscri
 Useful in cases where you want to subscribe to only some events on a certain topic:
 
 ```js
-import pubsub, { filter } from '@zuze/pubsub';
+import pubsub from '@zuze/pubsub';
+import { filter } from '@zuze/pubsub/operators';
 
 const { publish, subscribe } = pubsub<Topics>();
 
 const onlyPost10 = ({post_id}) => post_id === 10;
-subscribe('post', filter(onlyPost10)(console.log));
+const subscriber = filter(onlyPost10)(console.log);
+subscribe('post', subscriber);
 publish('post', { post_id: 9 }); // no log
 publish('post', { post_id: 10 }); // log!
 ```
@@ -133,7 +137,8 @@ publish('post', { post_id: 10 }); // log!
 When you want to perform some processing on an event before call another function:
 
 ```js
-import pubsub, { map } from '@zuze/pubsub';
+import pubsub from '@zuze/pubsub';
+import { map } from '@zuze/pubsub/operators';
 
 const { publish, subscribe } = pubsub<Topics>();
 
@@ -143,34 +148,73 @@ subscribe('post', map(addTimestamp)(console.log));
 publish('post', { post_id: 9 }); // adds a received_at timestamp
 ```
 
-- **`onlyOnce`**
+- **`mapTo`**
 
-When you only want to call a subscriber once:
+When you want to map to a value independent of the one being emitted:
 
 ```js
-import pubsub, { onlyOnce } from '@zuze/pubsub';
+import pubsub from '@zuze/pubsub';
+import { mapTo } from '@zuze/pubsub/operators';
 
 const { publish, subscribe } = pubsub<Topics>();
 
-subscribe('post', onlyOnce()(console.log));
+subscribe('post', mapTo(Date.now())(console.log));
+publish('post', { post_id: 9 }); // logs the timestamp
+```
+
+- **`take`**
+
+When you only want to call a subscriber up to a maximum number of times:
+
+```js
+import pubsub from '@zuze/pubsub';
+import { take } from '@zuze/pubsub/operators';
+
+const { publish, subscribe } = pubsub<Topics>();
+
+subscribe('post', take(2)(console.log));
+publish('post', { post_id: 8 }); // logs { post_id: 8 }
 publish('post', { post_id: 9 }); // logs { post_id: 9 }
 publish('post', { post_id: 10 }); // doesn't log!
 ```
+
+- `**single**` - analogous to `take(1)`
 
 - **`stack`**
 
 Calls the subscriber with all previously published events (since the subscriber started subscribing):
 ```js
-import pubsub, { stack } from '@zuze/pubsub';
+import pubsub from '@zuze/pubsub';
+import { stack } from '@zuze/pubsub/operators';
 
 const { publish, subscribe } = pubsub<Topics>();
 
-const addTimestamp = (post) => ({...post, received_at: Date.now() })
-
-subscribe('post', stack(console.log));
+subscribe('post', stack()(console.log));
 publish('post', { post_id: 9 }); // logs { post_id: 9 }
 publish('post', { post_id: 10 }); // logs [ { post_id: 9 }, { post_id: 10 } ]
 publish('post', { post_id: 11 }); // logs [ { post_id: 9 }, { post_id: 10 }, { post_id: 11} ]
+```
+
+## `pipe`
+
+Any operator can be used in a `pipe` which simply accepts a variable number of operators:
+
+```js
+import pubsub, { pipe, pipeable } from '@zuze/pubsub';
+import { stack } from '@zuze/pubsub/operators';
+
+const { publish, subscribe } = pubsub<Topics>();
+
+subscribe(
+    post,
+    pipe(
+        filter(({post_id}) => post_id === 10), // only emit events where the post_id is 10
+        distinctUntilChanged(), // don't emit the same event twice in a row
+        stack(2), // wait until we have a minimum of two events
+        pipeable(console.log) // our "real" subscriber - when used inside a pipe it must be wrapped in pipeable
+    );    
+);
+
 ```
 
 ## License

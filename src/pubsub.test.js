@@ -18,10 +18,7 @@ describe('test', () => {
 
   it('should publish', () => {
     expect(() =>
-      publish('post', {
-        post_id: 10,
-        content: 'test',
-      }),
+      publish('post', { post_id: 10, content: 'test' }),
     ).not.toThrow();
   });
 
