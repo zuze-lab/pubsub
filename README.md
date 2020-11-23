@@ -336,10 +336,10 @@ Adds in the number of events that have been emitted when calling the next functi
 
 ```js
 const fn = pipe( count(), log() ); 
-fn(3); // logs 0,3
-fn(3); // logs 1,3
-fn(3); // logs 2,3
-fn(3); // logs 3,3
+fn(3); // logs [0,3]
+fn(3); // logs [1,3]
+fn(3); // logs [2,3]
+fn(3); // logs [3,3]
 ```
 
 - **`stack<T>(minSize?: number, maxSize?: number): T[]`**

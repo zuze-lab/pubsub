@@ -4,41 +4,36 @@ import distinctUntilChanged from './distinctUntilChanged';
 import tap from './tap';
 
 describe('operators - distinctUntilChanged', () => {
-  let publish, subscribe;
-  let subscriber;
-  beforeEach(() => {
-    const bus = pubsub();
-    publish = bus.publish;
-    subscribe = bus.subscribe;
-    subscriber = jest.fn();
-  });
+  let spy;
+  beforeEach(() => (spy = jest.fn()));
+  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should distinctUntilChanged', () => {
-    subscribe('post', pipe(distinctUntilChanged(), tap(subscriber)));
+    const fn = setup(distinctUntilChanged());
     const ten = { post_id: 10 };
     const nine = { post_id: 9 };
-    publish('post', ten);
-    publish('post', nine);
-    publish('post', ten);
-    publish('post', nine);
-    expect(subscriber).toHaveBeenCalledTimes(4);
-    subscriber.mockClear();
-    publish('post', ten);
-    publish('post', ten);
-    expect(subscriber).toHaveBeenCalledTimes(1);
+    fn(ten);
+    fn(nine);
+    fn(ten);
+    fn(nine);
+    expect(spy).toHaveBeenCalledTimes(4);
+    spy.mockClear();
+    fn(ten);
+    fn(ten);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('should distinct with a custom comparator', () => {
     const comparator = (a, b) => a.key === b.key;
-    subscribe('post', pipe(distinctUntilChanged(comparator), tap(subscriber)));
-    publish('post', { post_id: 10, key: 1 });
-    publish('post', { post_id: 9, key: 2 });
-    publish('post', { post_id: 8, key: 1 });
-    publish('post', { post_id: 7, key: 2 });
-    expect(subscriber).toHaveBeenCalledTimes(4);
-    subscriber.mockClear();
-    publish('post', { post_id: 8, key: 1 });
-    publish('post', { post_id: 7, key: 1 });
-    expect(subscriber).toHaveBeenCalledTimes(1);
+    const fn = setup(distinctUntilChanged(comparator));
+    fn({ post_id: 10, key: 1 });
+    fn({ post_id: 9, key: 2 });
+    fn({ post_id: 8, key: 1 });
+    fn({ post_id: 7, key: 2 });
+    expect(spy).toHaveBeenCalledTimes(4);
+    spy.mockClear();
+    fn({ post_id: 8, key: 1 });
+    fn({ post_id: 7, key: 1 });
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,27 +1,21 @@
-import pubsub from '../pubsub';
 import pipe from './pipe';
 import take from './take';
 import tap from './tap';
 
 describe('operators - take', () => {
-  let publish, subscribe;
-  let subscriber;
-  beforeEach(() => {
-    const bus = pubsub();
-    publish = bus.publish;
-    subscribe = bus.subscribe;
-    subscriber = jest.fn();
-  });
+  let spy;
+  beforeEach(() => (spy = jest.fn()));
+  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should take', () => {
-    subscribe('post', pipe(take(2), tap(subscriber)));
+    const fn = setup(take(2));
 
-    publish('post', { post_id: 10 });
-    publish('post', { post_id: 10 });
-    expect(subscriber).toHaveBeenCalledTimes(2);
-    subscriber.mockClear();
-    publish('post', { post_id: 10 });
-    publish('post', { post_id: 10 });
-    expect(subscriber).not.toHaveBeenCalled();
+    fn({ post_id: 10 });
+    fn({ post_id: 10 });
+    expect(spy).toHaveBeenCalledTimes(2);
+    spy.mockClear();
+    fn({ post_id: 10 });
+    fn({ post_id: 10 });
+    expect(spy).not.toHaveBeenCalled();
   });
 });

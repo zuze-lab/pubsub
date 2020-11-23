@@ -1,20 +1,15 @@
-import pubsub from '../pubsub';
 import pipe from './pipe';
 import log from './log';
 
 describe('operators - log', () => {
-  let publish, subscribe, spy;
-  beforeEach(() => {
-    const bus = pubsub();
-    publish = bus.publish;
-    subscribe = bus.subscribe;
-    spy = jest.spyOn(console, 'log').mockImplementation();
-  });
+  let spy;
+  beforeEach(() => (spy = jest.spyOn(console, 'log').mockImplementation()));
+  const setup = (...operators) => pipe(...operators);
 
   it('should log', () => {
-    subscribe('post', pipe(log()));
+    const fn = setup(log());
 
-    publish('post', { post_id: 10 });
+    fn({ post_id: 10 });
     expect(spy).toHaveBeenCalledWith({ post_id: 10 });
   });
 });

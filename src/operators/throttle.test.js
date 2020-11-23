@@ -1,4 +1,3 @@
-import pubsub from '../pubsub';
 import pipe from './pipe';
 import throttle from './throttle';
 import tap from './tap';
@@ -6,36 +5,29 @@ import tap from './tap';
 jest.useFakeTimers();
 
 describe('operators - throttle', () => {
-  let publish, subscribe;
   let spy;
-  let subscriber;
-  beforeEach(() => {
-    const bus = pubsub();
-    publish = bus.publish;
-    subscribe = bus.subscribe;
-    spy = jest.fn();
-    subscriber = jest.fn();
-  });
+  beforeEach(() => (spy = jest.fn()));
+  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should throttle', () => {
-    subscribe('post', pipe(throttle(), tap(subscriber)));
-    publish('post', { post_id: 10 });
-    publish('post', { post_id: 9 });
-    publish('post', { post_id: 9 });
-    publish('post', { post_id: 9 });
-    expect(subscriber).toHaveBeenCalledTimes(1);
+    const fn = setup(throttle());
+    fn({ post_id: 10 });
+    fn({ post_id: 9 });
+    fn({ post_id: 9 });
+    fn({ post_id: 9 });
+    expect(spy).toHaveBeenCalledTimes(1);
     jest.runAllTimers();
-    expect(subscriber).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('should throttle with a timeout', () => {
-    subscribe('post', pipe(throttle(100), tap(subscriber)));
-    publish('post', { post_id: 10 });
-    publish('post', { post_id: 9 });
-    publish('post', { post_id: 9 });
-    setTimeout(() => publish('post', { post_id: 9 }), 101);
-    expect(subscriber).toHaveBeenCalledTimes(1);
+    const fn = setup(throttle(100));
+    fn({ post_id: 10 });
+    fn({ post_id: 9 });
+    fn({ post_id: 9 });
+    setTimeout(() => fn({ post_id: 9 }), 101);
+    expect(spy).toHaveBeenCalledTimes(1);
     jest.runAllTimers();
-    expect(subscriber).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 });

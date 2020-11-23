@@ -4,3 +4,5 @@ node_modules
 yarn-error.log
 browser.*
 operators.*
+dist
+.cache

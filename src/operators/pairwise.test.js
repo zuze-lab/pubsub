@@ -1,26 +1,20 @@
-import pubsub from '../pubsub';
 import pipe from './pipe';
 import pairwise from './pairwise';
 import tap from './tap';
 
 describe('operators - pairwise', () => {
-  let publish, subscribe;
-  let subscriber;
-  beforeEach(() => {
-    const bus = pubsub();
-    publish = bus.publish;
-    subscribe = bus.subscribe;
-    subscriber = jest.fn();
-  });
+  let spy;
+  beforeEach(() => (spy = jest.fn()));
+  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should pairwise', () => {
-    subscribe('post', pipe(pairwise(), tap(subscriber)));
+    const fn = setup(pairwise());
 
-    publish('post', { post_id: 10 });
-    expect(subscriber).not.toHaveBeenCalled();
-    publish('post', { post_id: 9 });
-    expect(subscriber).toHaveBeenCalledWith([{ post_id: 10 }, { post_id: 9 }]);
-    publish('post', { post_id: 8 });
-    expect(subscriber).toHaveBeenCalledWith([{ post_id: 9 }, { post_id: 8 }]);
+    fn({ post_id: 10 });
+    expect(spy).not.toHaveBeenCalled();
+    fn({ post_id: 9 });
+    expect(spy).toHaveBeenCalledWith([{ post_id: 10 }, { post_id: 9 }]);
+    fn({ post_id: 8 });
+    expect(spy).toHaveBeenCalledWith([{ post_id: 9 }, { post_id: 8 }]);
   });
 });

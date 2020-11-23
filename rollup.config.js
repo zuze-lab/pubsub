@@ -48,7 +48,7 @@ export default [
       {
         file: 'browser.js',
         sourcemap: true,
-        format: 'umd',
+        format: 'iife',
         name: MAIN_NAME,
         plugins: [
           getBabelOutputPlugin({
@@ -73,7 +73,7 @@ export default [
       {
         file: 'operators.js',
         sourcemap: true,
-        format: 'umd',
+        format: 'iife',
         name: MAIN_OPERATORS_NAME,
         plugins: [
           getBabelOutputPlugin({

@@ -1,26 +1,20 @@
-import pubsub from '../pubsub';
 import pipe from './pipe';
 import bufferCount from './bufferCount';
 import tap from './tap';
 
 describe('operators - bufferCount', () => {
-  let publish, subscribe;
-  let subscriber;
-  beforeEach(() => {
-    const bus = pubsub();
-    publish = bus.publish;
-    subscribe = bus.subscribe;
-    subscriber = jest.fn();
-  });
+  let spy;
+  beforeEach(() => (spy = jest.fn()));
+  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should bufferCount', () => {
     // with no arguments this acts identially to stack
-    subscribe('post', pipe(bufferCount(), tap(subscriber)));
+    const fn = setup(bufferCount());
 
-    publish('post', { post_id: 10 });
-    publish('post', { post_id: 9 });
-    publish('post', { post_id: 8 });
-    expect(subscriber).toHaveBeenCalledWith([
+    fn({ post_id: 10 });
+    fn({ post_id: 9 });
+    fn({ post_id: 8 });
+    expect(spy).toHaveBeenCalledWith([
       { post_id: 10 },
       { post_id: 9 },
       { post_id: 8 },
@@ -28,27 +22,27 @@ describe('operators - bufferCount', () => {
   });
 
   it('should bufferCount with a bufferSize', () => {
-    subscribe('post', pipe(bufferCount(2), tap(subscriber)));
+    const fn = setup(bufferCount(2));
 
-    publish('post', { post_id: 10 });
-    expect(subscriber).not.toHaveBeenCalled();
-    publish('post', { post_id: 9 });
-    expect(subscriber).toHaveBeenCalledWith([{ post_id: 10 }, { post_id: 9 }]);
-    publish('post', { post_id: 8 });
-    expect(subscriber).toHaveBeenCalledWith([{ post_id: 9 }, { post_id: 8 }]);
+    fn({ post_id: 10 });
+    expect(spy).not.toHaveBeenCalled();
+    fn({ post_id: 9 });
+    expect(spy).toHaveBeenCalledWith([{ post_id: 10 }, { post_id: 9 }]);
+    fn({ post_id: 8 });
+    expect(spy).toHaveBeenCalledWith([{ post_id: 9 }, { post_id: 8 }]);
   });
 
   it('should buffer count with an every', () => {
-    subscribe('post', pipe(bufferCount(2, 2), tap(subscriber)));
+    const fn = setup(bufferCount(2, 2));
 
-    publish('post', { post_id: 10 });
-    expect(subscriber).not.toHaveBeenCalled();
-    publish('post', { post_id: 9 });
-    expect(subscriber).toHaveBeenCalledWith([{ post_id: 10 }, { post_id: 9 }]);
-    subscriber.mockClear();
-    publish('post', { post_id: 8 });
-    expect(subscriber).not.toHaveBeenCalled();
-    publish('post', { post_id: 7 });
-    expect(subscriber).toHaveBeenCalledWith([{ post_id: 8 }, { post_id: 7 }]);
+    fn({ post_id: 10 });
+    expect(spy).not.toHaveBeenCalled();
+    fn({ post_id: 9 });
+    expect(spy).toHaveBeenCalledWith([{ post_id: 10 }, { post_id: 9 }]);
+    spy.mockClear();
+    fn({ post_id: 8 });
+    expect(spy).not.toHaveBeenCalled();
+    fn({ post_id: 7 });
+    expect(spy).toHaveBeenCalledWith([{ post_id: 8 }, { post_id: 7 }]);
   });
 });
