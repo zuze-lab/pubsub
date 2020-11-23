@@ -2,37 +2,43 @@ import babel, { getBabelOutputPlugin } from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
 import { terser } from 'rollup-plugin-terser';
 
-import pkg from './package.json';
-
 const MAIN = 'src/index.js';
+const MAIN_NAME = 'pubsub';
 const MAIN_OPERATORS = 'src/operators/index.js';
+const MAIN_OPERATORS_NAME = 'pubsubOperators';
 
 export default [
-  // ES5
   {
     input: MAIN,
     output: {
-      file: 'build/cjs/index.js',
+      file: 'build/index.js',
       format: 'cjs',
+      name: MAIN_NAME,
       exports: 'default',
     },
-    plugins: [resolve(), babel()],
-    external: {
-      ...pkg.dependencies,
-    },
+    plugins: [
+      resolve(),
+      babel({
+        babelHelpers: 'runtime',
+        plugins: ['@babel/plugin-transform-runtime'],
+      }),
+    ],
   },
 
-  // ES5
   {
     input: MAIN_OPERATORS,
     output: {
-      file: 'build/cjs/operators/index.js',
+      file: 'build/operators.js',
       format: 'cjs',
+      name: MAIN_OPERATORS_NAME,
     },
-    plugins: [resolve(), babel()],
-    external: {
-      ...pkg.dependencies,
-    },
+    plugins: [
+      resolve(),
+      babel({
+        babelHelpers: 'runtime',
+        plugins: [['@babel/plugin-transform-runtime', { useESModules: true }]],
+      }),
+    ],
   },
 
   // BROWSER
@@ -40,14 +46,13 @@ export default [
     input: MAIN,
     output: [
       {
-        file: 'build/browser/index.js',
+        file: 'browser.js',
         sourcemap: true,
-        format: 'iife',
-        name: 'pubsub',
+        format: 'umd',
+        name: MAIN_NAME,
         plugins: [
           getBabelOutputPlugin({
             allowAllFormats: true,
-            plugins: ['@babel/transform-runtime'],
             presets: [
               [
                 '@babel/preset-env',
@@ -66,14 +71,13 @@ export default [
     input: MAIN_OPERATORS,
     output: [
       {
-        file: 'build/browser/operators.js',
+        file: 'operators.js',
         sourcemap: true,
-        format: 'iife',
-        name: 'operators',
+        format: 'umd',
+        name: MAIN_OPERATORS_NAME,
         plugins: [
           getBabelOutputPlugin({
             allowAllFormats: true,
-            plugins: ['@babel/transform-runtime'],
             presets: [
               [
                 '@babel/preset-env',

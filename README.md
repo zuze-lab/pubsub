@@ -7,7 +7,11 @@
 
 ## What is this?
 
-[PubSub](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) is one of the best known decoupling software architecture patterns - it allows different components to communicate with each other without knowing about each other. There are plenty of great modules, but this one aims to be [ridiculously tiny](https://bundlephobia.com/result?p=@zuze/pubsub) and come with types in it's core.
+[PubSub](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) is one of the best known decoupling software architecture patterns - it allows different components to communicate with each other without knowing about each other.
+
+## What's special about this one?
+
+Well, we really like the RxJS inspired [operators](#subscribing-with-pipe-and-operators) and the [super small dependency free package size](https://bundlephobia.com/result?p=@zuze/pubsub).
 
 ### Getting Started
 
@@ -22,11 +26,11 @@ yarn add @zuze/pubsub
 Or just pull it in from the browser:
 
 ```html
-<script src="https://unpkg.com/@zuze-lab/pubsub"></script>
+<script src="https://unpkg.com/@zuze/pubsub"></script>
 <script>
-    const { publish, subscribe } = pubsub.default();
-    subscribe('someEvent',console.log);
-    publish('someEvent','it works!'); // logs it works! in the console
+    const { publish, subscribe } = pubsub();
+    subscribe('someEvent', console.log);
+    publish('someEvent', 'it works!'); // logs it works! in the console
 </script>
 ```
 
@@ -107,115 +111,239 @@ got comment
 unsub(); // no further events will be logged
 ```
 
-## Operators
+## Subscribing with `pipe` and Operators
 
-Shamelessly stolen from the concept of [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operators.
-
-A PubSub operator is a higher order function that accepts some parameters and returns a function that accepts a subscriber callback. They can be used individually, but become super cool when used with [`pipe`](#pipe).
-
-They are used to essentially modify/filter published events prior to the subscriber being called.
-
-- **`filter`**
-
-Useful in cases where you want to subscribe to only some events on a certain topic:
+You could stop here and have an great, incredibly small PubSub utility. But subscribing with `pipe` and operators takes your functional PubSub system to the next level.
 
 ```js
 import pubsub from '@zuze/pubsub';
-import { filter } from '@zuze/pubsub/operators';
+import { pipe, filter, subscriber } from '@zuze/pubsub/operators';
 
-const { publish, subscribe } = pubsub<Topics>();
-
-const onlyPost10 = ({post_id}) => post_id === 10;
-const subscriber = filter(onlyPost10)(console.log);
-subscribe('post', subscriber);
-publish('post', { post_id: 9 }); // no log
-publish('post', { post_id: 10 }); // log!
-```
-
-- **`map`**
-
-When you want to perform some processing on an event before call another function:
-
-```js
-import pubsub from '@zuze/pubsub';
-import { map } from '@zuze/pubsub/operators';
-
-const { publish, subscribe } = pubsub<Topics>();
-
-const addTimestamp = (post) => ({...post, received_at: Date.now() })
-
-subscribe('post', map(addTimestamp)(console.log));
-publish('post', { post_id: 9 }); // adds a received_at timestamp
-```
-
-- **`mapTo`**
-
-When you want to map to a value independent of the one being emitted:
-
-```js
-import pubsub from '@zuze/pubsub';
-import { mapTo } from '@zuze/pubsub/operators';
-
-const { publish, subscribe } = pubsub<Topics>();
-
-subscribe('post', mapTo(Date.now())(console.log));
-publish('post', { post_id: 9 }); // logs the timestamp
-```
-
-- **`take`**
-
-When you only want to call a subscriber up to a maximum number of times:
-
-```js
-import pubsub from '@zuze/pubsub';
-import { take } from '@zuze/pubsub/operators';
-
-const { publish, subscribe } = pubsub<Topics>();
-
-subscribe('post', take(2)(console.log));
-publish('post', { post_id: 8 }); // logs { post_id: 8 }
-publish('post', { post_id: 9 }); // logs { post_id: 9 }
-publish('post', { post_id: 10 }); // doesn't log!
-```
-
-- **`single`** - analogous to **`take(1)`**
-
-- **`stack`**
-
-Calls the subscriber with all previously published events (since the subscriber started subscribing):
-```js
-import pubsub from '@zuze/pubsub';
-import { stack } from '@zuze/pubsub/operators';
-
-const { publish, subscribe } = pubsub<Topics>();
-
-subscribe('post', stack()(console.log));
-publish('post', { post_id: 9 }); // logs { post_id: 9 }
-publish('post', { post_id: 10 }); // logs [ { post_id: 9 }, { post_id: 10 } ]
-publish('post', { post_id: 11 }); // logs [ { post_id: 9 }, { post_id: 10 }, { post_id: 11} ]
-```
-
-## `pipe`
-
-Any operator can be used in a `pipe` which simply accepts a variable number of operators:
-
-```js
-import pubsub, { pipe, pipeable } from '@zuze/pubsub';
-import { stack } from '@zuze/pubsub/operators';
-
-const { publish, subscribe } = pubsub<Topics>();
+const { subscribe, publish } = pubsub<Topics>();
 
 subscribe(
-    post,
+    'comment', 
     pipe(
-        filter(({post_id}) => post_id === 10), // only emit events where the post_id is 10
-        distinctUntilChanged(), // don't emit the same event twice in a row
-        stack(2), // wait until we have a minimum of two events and then emit all as an ever increasing array
-        pipeable(console.log) // our "real" subscriber - when used inside a pipe it must be wrapped in pipeable
-    );    
+        filter(({ comment_id }) => comment_id === 10),
+        subscriber(({content}) => console.log(content))
+    )
 );
 
+publish('comment',{ comment_id: 9, content: 'some comment' }); // no log
+publish('comment',{ comment_id: 10, content: 'bye' }); // logs 'bye'
 ```
+
+### In the browser
+
+```html
+<script src="https://unpkg.com/@zuze/pubsub"></script>
+<script src="https://unpkg.com/@zuze/pubsub/operators"></script>
+<script>
+    const { publish, subscribe } = pubsub();
+    const { map, subscriber, pipe } = pubsubOperators;    
+    subscribe(
+        'someEvent', 
+        pipe(
+            map(r => `I said, ${r}`),
+            subscriber(output => console.log(output))
+        )
+    );
+
+    publish('someEvent','it works!'); // logs 'I said, it works!' in the console
+</script>
+```
+
+`pipe` and `operators` are ~~stolen from~~ inspired by the [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operator API.
+
+### Using Operators
+
+-**`pipe(...operators)`**
+
+### Creating Reusable Operators
+
+Creating operators is acheived using `createOperator` function.
+
+`createOperator` accepts a function that accepts any number of user-supplied arguments and returns a function that accepts a next callback, followed by a function that accepts the published event.
+
+That sounds a bit complicated, but in reality, it's just a bunch of fat-arrows:
+
+```js
+import { createOperator, log } from '@zuze/pubsub/operators';
+
+// call next with the published event if it's greater than the user supplied number
+const greaterThan = createOperator(num => next => event => event > num && next(event));
+
+// use like
+const { subscribe, publish } = pubsub<Topics>();
+
+subscribe( 'nums', pipe( greaterThan(5), log() ));
+
+publish('nums', 4); // no log
+publish('nums', 8); // log's 8
+
+const multiplyBy = createOperator(num => next => event => next(event*num));
+
+// use like
+subscribe( 'nums', pipe( multiplyBy(4), log() ));
+
+publish('nums',4); // logs 16
+
+// chain your custom operators!
+subscribe( 'nums', pipe( multiplyBy(4), greaterThan(5), log() ));
+
+publish('nums', 1); // no log
+publish('nums', 2); // logs 8
+
+
+```
+
+Async operators are trivial:
+
+```js
+import pubsub from '@zuze/pubsub';
+import { createOperator, pipe, log } from '@zuze/pubsub/operators';
+
+const { publish, subscribe } = pubsub();
+
+// call next with the published event IF it's greater than the user supplied number
+const callApiOperator = createOperator(apiCall => next => async event => next(await apiCall(event)));
+
+subscribe(
+    'user_ids',
+    pipe(
+        callApiOperator(
+            async id => (await fetch(`https://jsonplaceholder.typicode.com/users/${id}`)).json()
+        ),
+        log()
+    )
+);
+
+publish('user_ids', 10);
+```
+
+
+You can easily create operators that are simply a common reuse of other operators using `pipe` using `createPipeOperator`. 
+`createPipeOperator` accepts a callback that is called with the same user-supplied arguments (like `createOperator`) but it returns an array of operator functions. This is handy if you find yourself consistently reusing operators together and is used internally to create operators as well:
+
+The below code is taken directly from `bufferCount`:
+
+```js
+import { createPipeOperator, stack, filter, map } from '@zuze/pubsub/operators';
+
+const bufferCount = createPipeOperator((size, every) => [
+  stack(),
+  filter(
+    e => (!size || e.length >= size) && (!every || e.length % every === 0),
+  ),
+  map(e => e.slice(size * -1)),
+]);
+```
+
+Just for fun, creating buffer count using `createOperator` instead of `createPipeOperator` would look like this:
+
+```js
+const bufferCount = createOperator((size,every) => next => pipe(
+  stack(),
+  filter(
+    e => (!size || e.length >= size) && (!every || e.length % every === 0),
+  ),
+  map(e => e.slice(size * -1)),
+  () => next    
+))
+```
+
+### List of Operators
+
+We tried to stay as close as possible to RxJS operating naming, considering we're not in an observable environment.
+With that in mind, here's the list:
+
+- **`map<T,R>(mapper: (e: T) => R): R`**
+
+Transforms the emitted event into a new value using a function before passing it to the next function:
+
+```js
+const fn = pipe( map(e => e*2), log() ) )
+fn(3); // logs 6
+```
+
+- **`mapTo<R>(mapper: () => R): R`**
+
+Transforms the emitted event into a new value before passing it to the next function
+
+```js
+const fn = pipe( map('joe'), log() ) )
+fn(3); // logs 'joe'
+```
+
+- **`take<T>(num: number): T`**
+
+Stops calling the next function after `num`
+
+```js
+const fn = pipe( take(2), log() ) )
+fn(3); // logs 3
+fn(3); // logs 3
+fn(3); // no log
+```
+
+- **`single<T>():T`** 
+
+Alias of `take(1)`
+
+- **`skip<T>(num: number): T`**
+
+Only starts calling the next function after `num` calls
+
+```js
+const fn = pipe( skip(2), log() ) )
+fn(3); // no log
+fn(3); // no log
+fn(3); // logs 3
+```
+
+- **`tap<T>(fn: (e: T) => void): T`**
+
+Calls it's function argument with the emitted event and continues calling the next function in the pipe:
+
+```js
+const fn = pipe( tap(e => console.log(e*2)), log() ) )
+fn(3); // logs 6, then logs 3
+```
+
+- **`every<T>(num: number): T`**
+
+Only calls the subsequent function in the pipe when a modulo of `num` has been admitted.
+
+```js
+const fn = pipe( every(2), log() ); // only proceed after every second event
+fn(3); // no log
+fn(3); // logs 3
+fn(3); // no log
+fn(3); // logs 3
+```
+
+- **`stack<T>(minSize?: number, maxSize?: number): T[]`**
+
+Calls the next operator with an array of all previously emitted events. Will not call the next operator until the stack reaches `minSize` (defaults to 1). Will call the next operator with a maximum array length of `maxSize` (defaults to all).
+
+- **`filter<T>(filterFn: (e: T) => boolean): T`**
+
+The provided filter function controls whether to calling the next operator in the pipe depending on if it returns true or false
+
+```js
+const fn = pipe( filter(e => e > 2), log() )
+fn(1); // no log
+fn(3); // logs 3
+```
+
+
+## Contributing
+
+PRs are welcome! Ideas include:
+
+1. **TYPES FOR OPERATORS!**
+2. Make the operators fully tree-shakeable. Right now they aren't.
+3. Include any RxJS operators that make sense in a non-observable environment
 
 ## License
 
