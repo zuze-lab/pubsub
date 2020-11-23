@@ -310,6 +310,14 @@ const fn = pipe( tap(e => console.log(e*2)), log() ) )
 fn(3); // logs 6, then logs 3
 ```
 
+- **`subscriber<T>(fn: (e: T) => void): T`**
+
+Alias of `tap`
+
+- **`log<T>(): T`**
+
+Alias of `tap(console.log)`
+
 - **`every<T>(num: number): T`**
 
 Only calls the subsequent function in the pipe when a modulo of `num` has been admitted.
@@ -322,9 +330,70 @@ fn(3); // no log
 fn(3); // logs 3
 ```
 
+- **`count<T>(startAt?: number): [number,T]`**
+
+Adds in the number of events that have been emitted when calling the next function in the chain:
+
+```js
+const fn = pipe( count(), log() ); 
+fn(3); // logs 0,3
+fn(3); // logs 1,3
+fn(3); // logs 2,3
+fn(3); // logs 3,3
+```
+
 - **`stack<T>(minSize?: number, maxSize?: number): T[]`**
 
 Calls the next operator with an array of all previously emitted events. Will not call the next operator until the stack reaches `minSize` (defaults to 1). Will call the next operator with a maximum array length of `maxSize` (defaults to all).
+
+```js
+const fn = pipe( stack(), log() ); 
+
+fn(1); // logs [1]
+fn(2); // logs [1,2]
+fn(3); // logs [1,2,3]
+fn(4); // logs [1,2,3,4]
+
+
+const fn = pipe( stack(3), log() ); 
+
+fn(1); // no log
+fn(2); // no log
+fn(3); // logs [1,2,3]
+fn(4); // logs [1,2,3,4]
+
+const fn = pipe( stack(3,2), log() ); 
+
+fn(1); // no log
+fn(2); // no log
+fn(3); // logs [2,3]
+fn(4); // logs [3,4]
+fn(5); // logs [4,5]
+
+```
+
+- **`bufferCount<T>(size?: number, every?: number): T[]`**
+
+Calls the next operator when at least `size` events have been emitted with an array of `size`. If `every` is provided, will only call the next operator when the current call number%every is 0.
+
+```js
+const fn = pipe( bufferCount(2,3), log() ); 
+
+fn(1); // no log
+fn(2); // no log
+fn(3); // logs [2,3]
+fn(4); // no log
+fn(5); // no log
+fn(6); // logs [5,6]
+fn(7); // no log
+
+```
+
+- **`pairwise<T>(): T[]`**
+
+Calls the next operator with an array containing the most recent emitted event (last element) and the event emitted previous to this. 
+
+Note: This operator will NOT call the subsequent operator until at least 2 events have been emitted.
 
 - **`filter<T>(filterFn: (e: T) => boolean): T`**
 
@@ -334,6 +403,58 @@ The provided filter function controls whether to calling the next operator in th
 const fn = pipe( filter(e => e > 2), log() )
 fn(1); // no log
 fn(3); // logs 3
+```
+
+- **`pluck<T,R>(...keys: string[]): R`**
+
+Plucks value from the object the function was called with based on the given keys:
+
+```js
+const fn = pipe ( pluck( 'comment', 'created_on' ), log() );
+fn({
+    comment: {
+        created_on: 1606101991,
+        content: 'hi'
+    }
+}) // logs 1606101991
+```
+
+- **`distinct<T>(comparator?: (a: T, b: T) => boolean): R`**
+
+Only calls subsequent operators if the value hasn't been previously emitted ever.
+  
+- **`distinctKey<T>(key: string, comparator?: (a: T, b: T) => boolean): R`**
+
+Only calls subsequent operators if the value at the given key hasn't been previously emitted ever.
+
+- **`distinctUntilChanged<T>(comparator?: (a: T, b: T) => boolean): R`**
+
+Only calls subsequent operators if the value is different than the previous value.
+
+- **`distinctUntilKeyChanged<T>(key: string, comparator?: (a: T, b: T) => boolean): R`**
+
+Only calls subsequent operators if the value at the given key is different than the previous value.
+
+- **`delay(by?: number)`**
+
+Delays calling the next function in the pipe using `by` (milliseconds):
+
+```js
+const fn = pipe( delay(100), log() ); 
+fn(3); // asynchronous logs 3, 100 ms after emitted
+```
+
+- **`debounce(by?: number)`**
+
+Debounces calls to the subsequent operator given using `by` (milliseconds).
+
+- **`throttle(by?: number, leading?: boolean)`**
+
+Throttles calls to the subsequent operator using `by` (milliseconds)
+
+```js
+const fn = pipe( delay(100), log() ); 
+fn(3); // asynchronous logs 3, 100 ms after emitted
 ```
 
 
