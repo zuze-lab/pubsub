@@ -444,9 +444,10 @@ const fn = pipe( delay(100), log() );
 fn(3); // asynchronous logs 3, 100 ms after emitted
 ```
 
-- **`debounce(by?: number)`**
+- **`debounce(by?: number, leading?: boolean = false)`**
 
 Debounces calls to the subsequent operator given using `by` (milliseconds).
+If *leading* is true then the function will be called immediately on first invocation and subsequent calls within `by` will be ignored.
 
 - **`throttle(by?: number, leading?: boolean)`**
 
