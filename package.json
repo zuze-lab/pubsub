@@ -16,6 +16,10 @@
         "publish/subscribe",
         "functional"
     ],
+    "bugs": {
+        "url": "https://github.com/zuze-lab/pubsub",
+        "email": "akmjenkins@gmail.com"
+    },
     "main": "build/index.js",
     "module": "index.js",
     "browser": "build/bundle.min.js",
