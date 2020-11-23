@@ -17,6 +17,9 @@ export { default as skip } from './skip';
 export { default as stack } from './stack';
 export { default as take } from './take';
 export { default as tap } from './tap';
+export { default as subscriber } from './tap'; // alias
 export { default as throttle } from './throttle';
 export { default as pipe } from './pipe';
+export { default as log } from './log';
 export { default as createOperator } from './createOperator';
+export { default as createPipeOperator } from './createPipeOperator';
