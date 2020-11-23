@@ -464,7 +464,7 @@ PRs are welcome! Ideas include:
 
 1. **TYPES FOR OPERATORS!**
 2. Make the operators fully tree-shakeable. Right now they aren't.
-3. Include any RxJS operators that make sense in a non-observable environment
+3. Include any RxJS operators that make sense in a non-observable environment.
 
 ## License
 
