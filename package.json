@@ -1,6 +1,6 @@
 {
     "name": "@zuze/pubsub",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "author": "akmjenkins",
     "license": "MIT",
     "repository": {
@@ -23,7 +23,7 @@
         "email": "akmjenkins@gmail.com"
     },
     "main": "build",
-    "module": "index.js",
+    "module": "src",
     "browser": "browser.js",
     "types": "index.d.ts",
     "scripts": {
