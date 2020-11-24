@@ -1,7 +1,7 @@
 import pipe from './pipe';
 
-export default fn => (...operatorArgs) => next =>
+export default fn => (...args) => next =>
   pipe.apply(
     null,
-    fn(...operatorArgs).concat(() => next),
+    fn(...args).concat(() => next),
   );

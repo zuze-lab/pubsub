@@ -1,5 +1,6 @@
 import babel, { getBabelOutputPlugin } from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
+import bundlesize from 'rollup-plugin-bundle-size';
 import { terser } from 'rollup-plugin-terser';
 
 const MAIN = 'src/index.js';
@@ -22,6 +23,7 @@ export default [
         babelHelpers: 'runtime',
         plugins: ['@babel/plugin-transform-runtime'],
       }),
+      bundlesize(),
     ],
   },
 
@@ -38,6 +40,7 @@ export default [
         babelHelpers: 'runtime',
         plugins: [['@babel/plugin-transform-runtime', { useESModules: true }]],
       }),
+      bundlesize(),
     ],
   },
 
@@ -61,6 +64,7 @@ export default [
             ],
           }),
           terser(),
+          bundlesize(),
         ],
       },
     ],
@@ -86,6 +90,7 @@ export default [
             ],
           }),
           terser(),
+          bundlesize(),
         ],
       },
     ],

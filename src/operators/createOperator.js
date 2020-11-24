@@ -1,1 +1,1 @@
-export default fn => (...operatorArgs) => fn(...operatorArgs);
+export default fn => (...args) => fn(...args);
