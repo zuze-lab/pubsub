@@ -1,13 +1,9 @@
-import createOperator from './createOperator';
-
-export default createOperator(
-  (by, leading, canCall = true, to) => next => (...args) => {
-    if (leading && canCall) next(...args);
-    canCall = false;
-    clearTimeout(to);
-    to = setTimeout(() => {
-      canCall = true;
-      leading || next(...args);
-    }, by);
-  },
-);
+export default (by, leading, canCall = true, to) => next => r => {
+  if (leading && canCall) next(r);
+  canCall = false;
+  clearTimeout(to);
+  to = setTimeout(() => {
+    canCall = true;
+    leading || next(r);
+  }, by);
+};

@@ -1,4 +1,4 @@
 import take from './take';
-import createOperator from './createOperator';
 
-export default createOperator(() => take(1));
+const one = take(1);
+export default () => one;

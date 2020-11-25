@@ -1,5 +1,1 @@
-import createOperator from './createOperator';
-
-export default createOperator(by => next => (...args) =>
-  setTimeout(() => next(...args), by),
-);
+export default by => next => r => setTimeout(() => next(r), by);

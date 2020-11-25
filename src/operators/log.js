@@ -1,4 +1,3 @@
-import createOperator from './createOperator';
 import tap from './tap';
 
-export default createOperator((fn = console.log) => tap(fn));
+export default (fn = console.log) => tap(fn);

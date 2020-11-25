@@ -1,8 +1,4 @@
-import createPipeOperator from './createPipeOperator';
-import map from './map';
-import bufferCount from './bufferCount';
+import filter from './filter';
+import pipeable from './pipeable';
 
-export default createPipeOperator(size => [
-  bufferCount(1, size),
-  map(e => e.pop()),
-]);
+export default (size, c = 0) => pipeable(filter(() => !(++c % size)));

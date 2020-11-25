@@ -1,7 +1,12 @@
-import createOperator from './createOperator';
+import filter from './filter';
+import pipeable from './pipeable';
 
-export default createOperator((by, canCall = true) => next => (...args) => {
-  canCall && next(...args);
-  canCall = false;
-  setTimeout(() => (canCall = true), by);
-});
+export default (by, canCall = true) =>
+  pipeable(
+    filter(() => {
+      setTimeout(() => (canCall = true), by);
+      const shouldCall = canCall;
+      canCall = false;
+      return shouldCall;
+    }),
+  );

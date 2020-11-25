@@ -1,5 +1,4 @@
-import createOperator from './createOperator';
+import pipeable from './pipeable';
+import filter from './filter';
 
-export default createOperator((times, count = 0) => next => (...args) =>
-  ++count <= times && next(...args),
-);
+export default (n, c = 0) => pipeable(filter(() => ++c <= n));

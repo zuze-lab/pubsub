@@ -1,2 +1,1 @@
-import createOperator from './createOperator';
-export default createOperator(m => next => (...args) => next(m(...args)));
+export default m => next => r => next(m(r));
