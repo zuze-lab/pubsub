@@ -2,7 +2,7 @@ coverage
 build
 node_modules
 yarn-error.log
-browser.*
-operators.*
+browser.js*
+operators.js*
 dist
 .cache

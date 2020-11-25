@@ -161,17 +161,19 @@ publish('comment',{ comment_id: 10, content: 'bye' }); // logs 'bye'
 
 ### Creating Reusable Operators
 
-Creating operators is acheived using `createOperator` function.
+An operator function accepts a single parameter - a [unary function](https://en.wikipedia.org/wiki/Unary_function) typically named `next` and returns a function that, after performing some operation, may or may not call `next` with a single argument.
 
-`createOperator` accepts a function that accepts any number of user-supplied arguments and returns a function that accepts a next callback, followed by a function that accepts the published event.
+So an operator creator is any function that returns an operator function.
 
-That sounds a bit complicated, but in reality, it's just a bunch of fat-arrows:
+While this might sound complicated, in reality it's just a bunch of fat arrows. Let's create one:
 
 ```js
-import { createOperator, log } from '@zuze/pubsub/operators';
+import { log } from '@zuze/pubsub/operators';
+
+// greaterThan is an operator creator - a function that returns an operator.
 
 // call next with the published event if it's greater than the user supplied number
-const greaterThan = createOperator(num => next => event => event > num && next(event));
+const greaterThan = num => next => event => event > num && next(event);
 
 // use like
 const { subscribe, publish } = pubsub<Topics>();
@@ -181,7 +183,7 @@ subscribe( 'nums', pipe( greaterThan(5), log() ));
 publish('nums', 4); // no log
 publish('nums', 8); // log's 8
 
-const multiplyBy = createOperator(num => next => event => next(event*num));
+const multiplyBy = num => next => event => next(event*num);
 
 // use like
 subscribe( 'nums', pipe( multiplyBy(4), log() ));
@@ -201,12 +203,12 @@ Async operators are trivial:
 
 ```js
 import pubsub from '@zuze/pubsub';
-import { createOperator, pipe, log } from '@zuze/pubsub/operators';
+import { pipe, log } from '@zuze/pubsub/operators';
 
 const { publish, subscribe } = pubsub();
 
 // call next with the published event IF it's greater than the user supplied number
-const callApiOperator = createOperator(apiCall => next => async event => next(await apiCall(event)));
+const callApiOperator = apiCall => next => async event => next(await apiCall(event));
 
 subscribe(
     'user_ids',
@@ -222,34 +224,34 @@ publish('user_ids', 10);
 ```
 
 
-You can easily create operators that are simply a common reuse of other operators using `pipe` using `createPipeOperator`. 
-`createPipeOperator` accepts a callback that is called with the same user-supplied arguments (like `createOperator`) but it returns an array of operator functions. This is handy if you find yourself consistently reusing operators together and is used internally to create operators as well:
+You can easily create operators that are simply a common reuse of other operators using `pipe` using `pipeable`. 
+This is handy if you find yourself consistently reusing operators together and is used internally to create operators as well:
 
 The below code is taken directly from `bufferCount`:
 
 ```js
-import { createPipeOperator, stack, filter, map } from '@zuze/pubsub/operators';
+import { pipeable, stack, filter, map } from '@zuze/pubsub/operators';
 
-const bufferCount = createPipeOperator((size, every) => [
+const bufferCount = (size, every) => pipeable(
   stack(),
   filter(
     e => (!size || e.length >= size) && (!every || e.length % every === 0),
   ),
   map(e => e.slice(size * -1)),
-]);
+);
 ```
 
-Just for fun, creating buffer count using `createOperator` instead of `createPipeOperator` would look like this:
+Just for fun, creating bufferCount without using `pipeable` would look like this:
 
 ```js
-const bufferCount = createOperator((size,every) => next => pipe(
+const bufferCount = (size,every) => next => pipe(
   stack(),
   filter(
     e => (!size || e.length >= size) && (!every || e.length % every === 0),
   ),
   map(e => e.slice(size * -1)),
   () => next    
-))
+);
 ```
 
 ### List of Operators
@@ -461,11 +463,7 @@ fn(3); // asynchronous logs 3, 100 ms after emitted
 
 ## Contributing
 
-PRs are welcome! Ideas include:
-
-1. **TYPES FOR OPERATORS!**
-2. Make the operators fully tree-shakeable. Right now they aren't.
-3. Include any RxJS operators that make sense in a non-observable environment.
+PRs are welcome!
 
 ## License
 

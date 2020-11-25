@@ -50,8 +50,8 @@ module.exports = {
         jest: true,
         node: true,
       },  
-      "parser": "@typescript-eslint/parser",
-      "plugins": [
+      parser: "@typescript-eslint/parser",
+      plugins: [
           "@typescript-eslint",
           "prettier"
       ],      
