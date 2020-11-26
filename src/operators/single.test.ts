@@ -1,14 +1,17 @@
-import pipe from './pipe';
-import single from './single';
-import tap from './tap';
+import { createPipe, single, tap } from './index';
 
 describe('operators - single', () => {
-  let spy;
+  let spy: jest.Mock;
+  type Post = {
+    post_id?: number;
+    post_title?: string;
+    comments?: [string, string];
+  };
+  const pipe = createPipe<Post>();
   beforeEach(() => (spy = jest.fn()));
-  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should single', () => {
-    const fn = setup(single());
+    const fn = pipe(single(), tap(spy));
 
     fn({ post_id: 10 });
     fn({ post_id: 10 });

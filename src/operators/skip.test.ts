@@ -1,14 +1,17 @@
-import pipe from './pipe';
-import skip from './skip';
-import tap from './tap';
+import { createPipe, skip, tap } from './index';
 
 describe('operators - skip', () => {
-  let spy;
+  let spy: jest.Mock;
+  type Post = {
+    post_id?: number;
+    post_title?: string;
+    comments?: [string, string];
+  };
+  const pipe = createPipe<Post>();
   beforeEach(() => (spy = jest.fn()));
-  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should skip', () => {
-    const fn = setup(skip(2));
+    const fn = pipe(skip(2), tap(spy));
 
     fn({ post_id: 10 });
     fn({ post_id: 10 });

@@ -1,14 +1,17 @@
-import pipe from './pipe';
-import pluck from './pluck';
-import tap from './tap';
+import { createPipe, pluck, tap } from './index';
 
 describe('operators - pluck', () => {
-  let spy;
+  let spy: jest.Mock;
+  type Post = {
+    post_id?: number;
+    post_title?: string;
+    comments?: [string, string];
+  };
+  const pipe = createPipe<Post>();
   beforeEach(() => (spy = jest.fn()));
-  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should pluck', () => {
-    const fn = setup(pluck('post_id'));
+    const fn = pipe(pluck('post_id'), tap(spy));
 
     fn({ post_id: 10 });
     expect(spy).toHaveBeenCalledWith(10);
@@ -17,7 +20,7 @@ describe('operators - pluck', () => {
   });
 
   it('should pluck nested', () => {
-    const fn = setup(pluck('comments', '0'));
+    const fn = pipe(pluck('comments', '0'), tap(spy));
 
     fn({
       post_id: 10,

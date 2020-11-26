@@ -1,6 +1,6 @@
 {
     "name": "@zuze/pubsub",
-    "version": "2.0.3",
+    "version": "2.1.0",
     "author": "akmjenkins",
     "license": "MIT",
     "repository": {
@@ -32,9 +32,7 @@
         "lint": "eslint src/",
         "rollup": "rimraf build && rollup -c",
         "test:ci": "yarn test:typescript && jest --coverage --coverageReporters=text-lcov | coveralls",
-        "test": "jest --testPathPattern=test.js",
-        "test:typescript": "jest --testPathPattern=test.ts --config jest.tsconfig.js",
-        "test:dts": "check-dts"
+        "test": "jest --testPathPattern=test.ts --config jest.tsconfig.js"
     },
     "files": [
         "build",
@@ -67,6 +65,7 @@
         "reselect": "^4.0.0",
         "rollup": "^2.15.0",
         "rollup-plugin-bundle-size": "^1.0.3",
+        "rollup-plugin-copy": "^3.3.0",
         "rollup-plugin-sourcemaps": "^0.6.2",
         "rollup-plugin-terser": "^6.1.0",
         "ts-jest": "^25.3.1",

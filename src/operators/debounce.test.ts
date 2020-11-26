@@ -1,16 +1,15 @@
-import pipe from './pipe';
-import debounce from './debounce';
-import tap from './tap';
+import { createPipe, debounce, tap } from './index';
 
 jest.useFakeTimers();
 
 describe('operators - debounce', () => {
-  let spy;
+  let spy: jest.Mock;
+  type Post = { post_id: number; comments?: [string, string] };
+  const pipe = createPipe<Post>();
   beforeEach(() => (spy = jest.fn()));
-  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should debounce', () => {
-    const fn = setup(debounce());
+    const fn = pipe(debounce(1), tap(spy));
     fn({ post_id: 10 });
     fn({ post_id: 10 });
     fn({ post_id: 10 });
@@ -20,7 +19,7 @@ describe('operators - debounce', () => {
   });
 
   it('should debounce with a timeout', () => {
-    const fn = setup(debounce(100));
+    const fn = pipe(debounce(100), tap(spy));
     fn({ post_id: 10 });
     fn({ post_id: 10 });
     fn({ post_id: 9 });
@@ -35,7 +34,7 @@ describe('operators - debounce', () => {
   });
 
   it('should debounce leading with a timeout', () => {
-    const fn = setup(debounce(100, true));
+    const fn = pipe(debounce(1, true), tap(spy));
     fn({ post_id: 10 });
     fn({ post_id: 10 });
     fn({ post_id: 9 });

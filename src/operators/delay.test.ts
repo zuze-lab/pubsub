@@ -1,16 +1,15 @@
-import pipe from './pipe';
-import delay from './delay';
-import tap from './tap';
+import { createPipe, delay, tap } from './index';
 
 jest.useFakeTimers();
 
 describe('operators - delay', () => {
-  let spy;
+  let spy: jest.Mock;
+  type Post = { post_id: number; comments?: [string, string] };
+  const pipe = createPipe<Post>();
   beforeEach(() => (spy = jest.fn()));
-  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should delay', () => {
-    const fn = setup(delay(1000));
+    const fn = pipe(delay(1000), tap(spy));
 
     fn({ post_id: 10 });
     expect(spy).not.toHaveBeenCalled();

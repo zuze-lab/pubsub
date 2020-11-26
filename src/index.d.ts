@@ -1,6 +1,6 @@
 declare type Subscriber<R> = (data: R) => void;
 declare type Topics = Record<string, any>;
-type Unsubscribe = () => void;
+declare type Unsubscribe = () => void;
 type EventBus<T extends Topics> = {
     subscribe: <R extends keyof T>(
         topic: R,

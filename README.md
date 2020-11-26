@@ -58,6 +58,7 @@ type Topics = {
         content: string;
         post_id: number;
     };
+    nums: number;
 };
 
 const { subscribe, publish } = pubsub<Topics>();
@@ -113,12 +114,14 @@ unsub(); // no further events will be logged
 
 ## Subscribing with `pipe` and Operators
 
-You could stop here and have an great, incredibly small PubSub utility. But subscribing with `pipe` and operators takes your functional PubSub system to the next level.
+You could stop here and have an great, incredibly small PubSub utility. But subscribing with a `pipe` and operators takes your functional PubSub system to the next level.
 
 ```js
 import pubsub from '@zuze/pubsub';
-import { pipe, filter, subscriber } from '@zuze/pubsub/operators';
+import { createPipe, filter, subscriber } from '@zuze/pubsub/operators';
 
+// creates a pipe that accepts operator functions that act on Topics['comment']
+const pipe = createPipe<Topics['comment']>();
 const { subscribe, publish } = pubsub<Topics>();
 
 subscribe(
@@ -159,6 +162,25 @@ publish('comment',{ comment_id: 10, content: 'bye' }); // logs 'bye'
 
 -**`pipe(...operators)`**
 
+
+When using typescript, you should create the pipe first using `createPipe`:
+
+```ts
+import { createPipe } from '@zuze/pubsub/operators';
+
+// creates a pipe whose operator functions act on SomeType
+const pipe = createPipe<SomeType>();
+const myPipe = pipe(...operatorFunctions);
+```
+
+When using plain JavaScript, feel free to use `pipe` directly:
+
+```js
+import { pipe } from '@zuze/pubsub/operators';
+const myPipe = pipe(...operatorFunctions);
+```
+
+
 ### Creating Reusable Operators
 
 An operator function accepts a single parameter - a [unary function](https://en.wikipedia.org/wiki/Unary_function) typically named `next` and returns a function that, after performing some operation, may or may not call `next` with a single argument.
@@ -177,6 +199,7 @@ const greaterThan = num => next => event => event > num && next(event);
 
 // use like
 const { subscribe, publish } = pubsub<Topics>();
+const pipe = createPipe<Topics['number']>();
 
 subscribe( 'nums', pipe( greaterThan(5), log() ));
 

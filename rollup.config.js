@@ -2,6 +2,7 @@ import babel, { getBabelOutputPlugin } from '@rollup/plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
 import bundlesize from 'rollup-plugin-bundle-size';
 import { terser } from 'rollup-plugin-terser';
+import copy from 'rollup-plugin-copy';
 
 const MAIN = 'src/index.js';
 const MAIN_NAME = 'pubsub';
@@ -18,6 +19,9 @@ export default [
       exports: 'default',
     },
     plugins: [
+      copy({
+        targets: [{ src: './src/index.d.ts', dest: 'build' }],
+      }),
       resolve(),
       babel({
         babelHelpers: 'runtime',
@@ -35,6 +39,15 @@ export default [
       name: MAIN_OPERATORS_NAME,
     },
     plugins: [
+      copy({
+        targets: [
+          {
+            src: './src/operators/index.d.ts',
+            dest: 'build',
+            rename: 'operators.d.ts',
+          },
+        ],
+      }),
       resolve(),
       babel({
         babelHelpers: 'runtime',
@@ -43,6 +56,8 @@ export default [
       bundlesize(),
     ],
   },
+
+  // TYPES
 
   // BROWSER
   {

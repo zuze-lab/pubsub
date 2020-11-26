@@ -1,14 +1,13 @@
-import pipe from './pipe';
-import count from './count';
-import tap from './tap';
+import { tap, count, createPipe } from './index';
 
 describe('operators - count', () => {
-  let spy;
+  let spy: jest.Mock;
+  type Post = { post_id: number; comments?: [string, string] };
+  const pipe = createPipe<Post>();
   beforeEach(() => (spy = jest.fn()));
-  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should count', () => {
-    const fn = setup(count());
+    const fn = pipe(count(), tap(spy));
 
     fn({ post_id: 10 });
     expect(spy).toHaveBeenCalledWith([0, { post_id: 10 }]);
@@ -17,7 +16,7 @@ describe('operators - count', () => {
   });
 
   it('should count with a startAt', () => {
-    const fn = setup(count(5));
+    const fn = pipe(count(5), tap(spy));
 
     fn({ post_id: 10 });
     expect(spy).toHaveBeenCalledWith([5, { post_id: 10 }]);

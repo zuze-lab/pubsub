@@ -1,15 +1,17 @@
-import pubsub from '../pubsub';
-import pipe from './pipe';
-import distinctKey from './distinctKey';
-import tap from './tap';
+import { createPipe, distinctKey, tap } from './index';
 
 describe('operators - distinct', () => {
-  let spy;
+  let spy: jest.Mock;
+  type Post = {
+    post_id?: number;
+    post_title?: string;
+    comments?: [string, string];
+  };
+  const pipe = createPipe<Post>();
   beforeEach(() => (spy = jest.fn()));
-  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should distinctKey', () => {
-    const fn = setup(distinctKey('post_id'));
+    const fn = pipe(distinctKey('post_id'), tap(spy));
     fn({ post_id: 10 });
     fn({ post_id: 9 });
     fn({ post_id: 10 });
@@ -18,8 +20,9 @@ describe('operators - distinct', () => {
   });
 
   it('should distinct with a custom comparator', () => {
-    const fn = setup(
+    const fn = pipe(
       distinctKey('post_title', (a, b) => a.substr(0, 3) === b.substr(0, 3)),
+      tap(spy),
     );
     fn({ post_title: 'Top ten gifts' });
     fn({ post_title: 'Top five gifts' });

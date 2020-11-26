@@ -1,3 +1,3 @@
-import pipe from './pipe';
+import { pipe } from './pipe';
 
 export default (...p) => next => pipe(...p, () => next);

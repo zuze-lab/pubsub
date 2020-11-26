@@ -1,14 +1,17 @@
-import pipe from './pipe';
-import pairwise from './pairwise';
-import tap from './tap';
+import { createPipe, pairwise, tap } from './index';
 
 describe('operators - pairwise', () => {
-  let spy;
+  let spy: jest.Mock;
+  type Post = {
+    post_id?: number;
+    post_title?: string;
+    comments?: [string, string];
+  };
+  const pipe = createPipe<Post>();
   beforeEach(() => (spy = jest.fn()));
-  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should pairwise', () => {
-    const fn = setup(pairwise());
+    const fn = pipe(pairwise(), tap(spy));
 
     fn({ post_id: 10 });
     expect(spy).not.toHaveBeenCalled();

@@ -1,15 +1,13 @@
-import pubsub from '../pubsub';
-import pipe from './pipe';
-import distinctUntilChanged from './distinctUntilChanged';
-import tap from './tap';
+import { createPipe, distinctUntilChanged, tap } from './index';
 
 describe('operators - distinctUntilChanged', () => {
-  let spy;
+  let spy: jest.Mock;
+  type Post = { post_id: number; key?: number; comments?: [string, string] };
+  const pipe = createPipe<Post>();
   beforeEach(() => (spy = jest.fn()));
-  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should distinctUntilChanged', () => {
-    const fn = setup(distinctUntilChanged());
+    const fn = pipe(distinctUntilChanged(), tap(spy));
     const ten = { post_id: 10 };
     const nine = { post_id: 9 };
     fn(ten);
@@ -24,8 +22,8 @@ describe('operators - distinctUntilChanged', () => {
   });
 
   it('should distinct with a custom comparator', () => {
-    const comparator = (a, b) => a.key === b.key;
-    const fn = setup(distinctUntilChanged(comparator));
+    const comparator = (a: Post, b: Post) => a.key === b.key;
+    const fn = pipe(distinctUntilChanged(comparator), tap(spy));
     fn({ post_id: 10, key: 1 });
     fn({ post_id: 9, key: 2 });
     fn({ post_id: 8, key: 1 });

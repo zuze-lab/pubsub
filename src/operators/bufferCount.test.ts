@@ -1,15 +1,14 @@
-import pipe from './pipe';
-import bufferCount from './bufferCount';
-import tap from './tap';
+import { createPipe, bufferCount, tap } from './index';
 
 describe('operators - bufferCount', () => {
-  let spy;
+  let spy: jest.Mock;
+  type Post = { post_id: number; comments?: [string, string] };
+  const pipe = createPipe<Post>();
   beforeEach(() => (spy = jest.fn()));
-  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should bufferCount', () => {
     // with no arguments this acts identially to stack
-    const fn = setup(bufferCount());
+    const fn = pipe(bufferCount(), tap(spy));
 
     fn({ post_id: 10 });
     fn({ post_id: 9 });
@@ -22,7 +21,7 @@ describe('operators - bufferCount', () => {
   });
 
   it('should bufferCount with a bufferSize', () => {
-    const fn = setup(bufferCount(2));
+    const fn = pipe(bufferCount(2), tap(spy));
 
     fn({ post_id: 10 });
     expect(spy).not.toHaveBeenCalled();
@@ -33,7 +32,7 @@ describe('operators - bufferCount', () => {
   });
 
   it('should buffer count with an every', () => {
-    const fn = setup(bufferCount(2, 2));
+    const fn = pipe(bufferCount(2, 2), tap(spy));
 
     fn({ post_id: 10 });
     expect(spy).not.toHaveBeenCalled();

@@ -1,16 +1,19 @@
-import pipe from './pipe';
-import throttle from './throttle';
-import tap from './tap';
+import { createPipe, throttle, tap } from './index';
 
 jest.useFakeTimers();
 
 describe('operators - throttle', () => {
-  let spy;
+  let spy: jest.Mock;
+  type Post = {
+    post_id?: number;
+    post_title?: string;
+    comments?: [string, string];
+  };
+  const pipe = createPipe<Post>();
   beforeEach(() => (spy = jest.fn()));
-  const setup = (...operators) => pipe(...operators, tap(spy));
 
   it('should throttle', () => {
-    const fn = setup(throttle());
+    const fn = pipe(throttle(1), tap(spy));
     fn({ post_id: 10 });
     fn({ post_id: 9 });
     fn({ post_id: 9 });
@@ -21,7 +24,7 @@ describe('operators - throttle', () => {
   });
 
   it('should throttle with a timeout', () => {
-    const fn = setup(throttle(100));
+    const fn = pipe(throttle(100), tap(spy));
     fn({ post_id: 10 });
     fn({ post_id: 9 });
     fn({ post_id: 9 });
