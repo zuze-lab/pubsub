@@ -31,7 +31,7 @@
         "build": "yarn clean && rollup -c ",
         "lint": "eslint src/",
         "rollup": "rimraf build && rollup -c",
-        "test:ci": "yarn test:typescript && jest --coverage --coverageReporters=text-lcov | coveralls",
+        "test:ci": "yarn test --coverage --coverageReporters=text-lcov | coveralls",
         "test": "jest --testPathPattern=test.ts --config jest.tsconfig.js"
     },
     "files": [
