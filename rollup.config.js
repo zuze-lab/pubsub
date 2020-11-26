@@ -7,7 +7,7 @@ import copy from 'rollup-plugin-copy';
 const MAIN = 'src/index.js';
 const MAIN_NAME = 'pubsub';
 const MAIN_OPERATORS = 'src/operators/index.js';
-const MAIN_OPERATORS_NAME = 'pubsubOperators';
+const MAIN_OPERATORS_NAME = 'pubsubPipe';
 
 export default [
   {
@@ -34,7 +34,7 @@ export default [
   {
     input: MAIN_OPERATORS,
     output: {
-      file: 'build/operators.js',
+      file: 'build/operators/index.js',
       format: 'cjs',
       name: MAIN_OPERATORS_NAME,
     },
@@ -43,8 +43,7 @@ export default [
         targets: [
           {
             src: './src/operators/index.d.ts',
-            dest: 'build',
-            rename: 'operators.d.ts',
+            dest: 'build/operators',
           },
         ],
       }),
@@ -57,14 +56,62 @@ export default [
     ],
   },
 
-  // TYPES
+  {
+    input: MAIN,
+    output: {
+      file: 'build/esm/operators/index.js',
+      format: 'esm',
+      name: MAIN_NAME,
+    },
+    plugins: [
+      copy({
+        targets: [
+          {
+            src: './src/operators/index.d.ts',
+            dest: 'build/esm/operators',
+          },
+        ],
+      }),
+      resolve(),
+      babel({
+        babelHelpers: 'runtime',
+        plugins: [['@babel/plugin-transform-runtime', { useESModules: true }]],
+      }),
+      bundlesize(),
+    ],
+  },
+
+  {
+    input: MAIN,
+    output: {
+      file: 'build/esm/index.js',
+      format: 'esm',
+      name: MAIN_NAME,
+    },
+    plugins: [
+      copy({
+        targets: [
+          {
+            src: './src/index.d.ts',
+            dest: 'build/esm',
+          },
+        ],
+      }),
+      resolve(),
+      babel({
+        babelHelpers: 'runtime',
+        plugins: [['@babel/plugin-transform-runtime', { useESModules: true }]],
+      }),
+      bundlesize(),
+    ],
+  },
 
   // BROWSER
   {
     input: MAIN,
     output: [
       {
-        file: 'browser.js',
+        file: 'build/browser.min.js',
         sourcemap: true,
         format: 'iife',
         name: MAIN_NAME,
@@ -90,7 +137,7 @@ export default [
     input: MAIN_OPERATORS,
     output: [
       {
-        file: 'operators.js',
+        file: 'build/pipe.js',
         sourcemap: true,
         format: 'iife',
         name: MAIN_OPERATORS_NAME,

@@ -140,10 +140,10 @@ publish('comment',{ comment_id: 10, content: 'bye' }); // logs 'bye'
 
 ```html
 <script src="https://unpkg.com/@zuze/pubsub"></script>
-<script src="https://unpkg.com/@zuze/pubsub/operators"></script>
+<script src="https://unpkg.com/@zuze/pubsub/pipe"></script>
 <script>
     const { publish, subscribe } = pubsub();
-    const { map, subscriber, pipe } = pubsubOperators;    
+    const { map, subscriber, pipe } = pubsubPipe;    
     subscribe(
         'someEvent', 
         pipe(

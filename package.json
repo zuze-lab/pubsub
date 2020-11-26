@@ -1,6 +1,6 @@
 {
     "name": "@zuze/pubsub",
-    "version": "2.1.0",
+    "version": "2.1.4",
     "author": "akmjenkins",
     "license": "MIT",
     "repository": {
@@ -22,25 +22,18 @@
         "url": "https://github.com/zuze-lab/pubsub",
         "email": "akmjenkins@gmail.com"
     },
-    "main": "build",
-    "module": "src",
-    "browser": "browser.js",
+    "main": "index.js",
+    "module": "esm/index.js",
+    "browser": "browser.min.js",
     "scripts": {
-        "prepublishOnly": "yarn lint && yarn test && yarn build",
+        "dist": "yarn lint && yarn test && yarn build && cp -a package.json build && yarn pub",
         "clean": "rimraf build",
         "build": "yarn clean && rollup -c ",
         "lint": "eslint src/",
-        "rollup": "rimraf build && rollup -c",
         "test:ci": "yarn test --coverage --coverageReporters=text-lcov | coveralls",
-        "test": "jest --testPathPattern=test.ts --config jest.tsconfig.js"
+        "test": "jest --testPathPattern=test.ts --config jest.tsconfig.js",
+        "pub": "cd build && npm publish"
     },
-    "files": [
-        "build",
-        "src",
-        "browser.js",
-        "operators.js",
-        "index.d.ts"
-    ],
     "sideEffects": false,
     "devDependencies": {
         "@babel/cli": "^7.10.1",
