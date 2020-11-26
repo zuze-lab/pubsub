@@ -23,7 +23,7 @@ export type pipe<S> = {
 
 export function createPipe<S>(): pipe<S>;
 export function bufferCount<T>(size?: number, every?: number): OperatorFn<T, T[]>
-export function count<T>(startAt?: number): OperatorFn<T, T[]>
+export function count<T>(startAt?: number): OperatorFn<T, [number, T]>
 export function debounce<T>(by: number, leading?: boolean): OperatorFn<T, T>
 declare function delay<T>(by: number): OperatorFn<T, T>
 declare function distinct<T>(comparator?: (a: T, b: T) => boolean): OperatorFn<T, T>
