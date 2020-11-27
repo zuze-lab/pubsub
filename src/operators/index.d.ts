@@ -50,4 +50,4 @@ export function stack<T>(minSize?: number, maxSize?: number): OperatorFn<T, T[]>
 export function take<T>(n: number): OperatorFn<T, T>
 export function tap<T>(fn: (arg: T) => void): OperatorFn<T, T>
 export function throttle<T>(by: number): OperatorFn<T, T>
-export function startWith<T>(arg: T): OperatorFn<T, T>
+export function startWith<T>(arg: T | Promise<T> | (() => (T | Promise<T>))): OperatorFn<T, T>
