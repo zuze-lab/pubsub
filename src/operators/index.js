@@ -22,3 +22,4 @@ export { default as throttle } from './throttle';
 export { default as createPipe, pipe } from './pipe';
 export { default as log } from './log';
 export { default as pipeable } from './pipeable';
+export { default as startWith } from './startWith';
