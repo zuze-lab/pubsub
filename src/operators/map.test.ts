@@ -21,4 +21,23 @@ describe('operators - map', () => {
     fn({ post_id: 9 });
     expect(spy).toHaveBeenCalledWith(true);
   });
+
+  it('should map async', async () => {
+    const fn = pipe(
+      map(async ({ post_id }) => post_id !== 10),
+      tap(spy),
+    );
+
+    fn({ post_id: 10 });
+    expect(spy).not.toHaveBeenCalled();
+    await Promise.resolve();
+    expect(spy).toHaveBeenCalledWith(false);
+
+    spy.mockClear();
+    fn({ post_id: 9 });
+    expect(spy).not.toHaveBeenCalled();
+    await Promise.resolve();
+    expect(spy).toHaveBeenCalledWith(true);
+    fn({});
+  });
 });

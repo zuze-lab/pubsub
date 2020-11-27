@@ -1,5 +1,4 @@
-export default m => next => {
-  const f = typeof m === 'function' ? m() : m;
-  typeof f.then === 'function' ? f.then(next) : next(f);
-  return next;
-};
+import { callThenable } from './utils';
+export default m => next => (
+  callThenable(typeof m === 'function' ? m() : m, next), next
+);
