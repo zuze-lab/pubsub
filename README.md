@@ -156,11 +156,14 @@ publish('comment',{ comment_id: 10, content: 'bye' }); // logs 'bye'
 </script>
 ```
 
-`pipe` and `operators` are ~~stolen from~~ inspired by the [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operator API, but without the complexity of schedulers or marble diagrams.
+Perhaps counterintuitively, due to the way a pipe is constructed from operator functions, nothing ever "comes out" of a pipe, then end result is always `undefined`. If you want to call some external function at any point in the pipe, use the [subscriber](#subscribertfn-e-t--void-t) operator (an alias of [tap](#taptfn-e-t--void-t))
+
+
+`pipe` and `operators` are ~~stolen from~~ inspired by the [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operator API, but without the power or complexity of schedulers or marble diagrams.
 
 ### Using Operators
 
--**`pipe(...operators)`**
+### `pipe<T>(...operators: OperatorFn<T,any>[])`
 
 
 When using typescript, you should create the pipe first using `createPipe`:
@@ -282,7 +285,7 @@ const bufferCount = (size,every) => next => pipe(
 We tried to stay as close as possible to RxJS operating naming, considering we're not in an observable environment.
 With that in mind, here's the list:
 
-- **`map<T,R>(mapper: (e: T) => R): R`**
+#### `map<T,R>(mapper: (e: T) => R): R`
 
 Transforms the emitted event into a new value using a function before passing it to the next function:
 
@@ -291,7 +294,7 @@ const fn = pipe( map(e => e*2), log() ) )
 fn(3); // logs 6
 ```
 
-- **`mapTo<R>(mapper: () => R): R`**
+#### `mapTo<R>(mapper: () => R): R`
 
 Transforms the emitted event into a new value before passing it to the next function
 
@@ -300,7 +303,7 @@ const fn = pipe( map('joe'), log() ) )
 fn(3); // logs 'joe'
 ```
 
-- **`take<T>(num: number): T`**
+#### `take<T>(num: number): T`
 
 Stops calling the next function after `num`
 
@@ -311,7 +314,7 @@ fn(3); // logs 3
 fn(3); // no log
 ```
 
-- **`takeUntil<T>(promise: Promise<void>): T`**
+#### `takeUntil<T>(promise: Promise<void>): T`
 
 Calls the next function until the provided promise resolved
 
@@ -324,7 +327,7 @@ fn(3); // logs 3
 fn(3); // no log
 ```
 
-- **`startWith<T>(T | Promise<T> | () => (T | Promise<T>)): T`**
+#### `startWith<T>(T | Promise<T> | () => (T | Promise<T>)): T`
 
 Immediately calls the next operator in the chain with the value:
 
@@ -339,11 +342,11 @@ const fn = pipe ( filter(i => i > 2), startWith(() => new Promise(res => setTime
 
 ```
 
-- **`single<T>():T`** 
+#### `single<T>():T`
 
 Alias of `take(1)`
 
-- **`skip<T>(num: number): T`**
+#### `skip<T>(num: number): T`
 
 Only starts calling the next function after `num` calls
 
@@ -354,7 +357,7 @@ fn(3); // no log
 fn(3); // logs 3
 ```
 
-- **`skipUntil<T>(promise: Promise<void>): T`**
+#### `skipUntil<T>(promise: Promise<void>): T`
 
 Prevents calling the next function until the provided promise resolved
 
@@ -367,7 +370,7 @@ fn(3); // no log
 fn(3); // logs 3
 ```
 
-- **`tap<T>(fn: (e: T) => void): T`**
+#### `tap<T>(fn: (e: T) => void): T`
 
 Calls it's function argument with the emitted event and continues calling the next function in the pipe:
 
@@ -376,15 +379,15 @@ const fn = pipe( tap(e => console.log(e*2)), log() ) )
 fn(3); // logs 6, then logs 3
 ```
 
-- **`subscriber<T>(fn: (e: T) => void): T`**
+#### `subscriber<T>(fn: (e: T) => void): T`
 
 Alias of `tap`
 
-- **`log<T>(): T`**
+#### `log<T>(): T`
 
 Alias of `tap(console.log)`
 
-- **`every<T>(num: number): T`**
+#### `every<T>(num: number): T`
 
 Only calls the subsequent function in the pipe when a modulo of `num` has been admitted.
 
@@ -396,7 +399,7 @@ fn(3); // no log
 fn(3); // logs 3
 ```
 
-- **`count<T>(startAt?: number): [number,T]`**
+#### `count<T>(startAt?: number): [number,T]`
 
 Adds in the number of events that have been emitted when calling the next function in the chain:
 
@@ -408,7 +411,7 @@ fn(3); // logs [2,3]
 fn(3); // logs [3,3]
 ```
 
-- **`stack<T>(minSize?: number, maxSize?: number): T[]`**
+#### `stack<T>(minSize?: number, maxSize?: number): T[]`
 
 Calls the next operator with an array of all previously emitted events. Will not call the next operator until the stack reaches `minSize` (defaults to 1). Will call the next operator with a maximum array length of `maxSize` (defaults to all).
 
@@ -438,7 +441,7 @@ fn(5); // logs [4,5]
 
 ```
 
-- **`bufferCount<T>(size?: number, every?: number): T[]`**
+#### `bufferCount<T>(size?: number, every?: number): T[]`
 
 Calls the next operator when at least `size` events have been emitted with an array of `size`. If `every` is provided, will only call the next operator when the current call number%every is 0.
 
@@ -455,13 +458,13 @@ fn(7); // no log
 
 ```
 
-- **`pairwise<T>(): T[]`**
+#### `pairwise<T>(): T[]`
 
 Calls the next operator with an array containing the most recent emitted event (last element) and the event emitted previous to this. 
 
 Note: This operator will NOT call the subsequent operator until at least 2 events have been emitted.
 
-- **`filter<T>(filterFn: (e: T) => boolean): T`**
+#### `filter<T>(filterFn: (e: T) => boolean): T`
 
 The provided filter function controls whether to calling the next operator in the pipe depending on if it returns true or false
 
@@ -471,7 +474,7 @@ fn(1); // no log
 fn(3); // logs 3
 ```
 
-- **`pluck<T,R>(...keys: string[]): R`**
+#### `pluck<T,R>(...keys: string[]): R`
 
 Plucks value from the object the function was called with based on the given keys:
 
@@ -485,23 +488,23 @@ fn({
 }) // logs 1606101991
 ```
 
-- **`distinct<T>(comparator?: (a: T, b: T) => boolean): R`**
+#### `distinct<T>(comparator?: (a: T, b: T) => boolean): R`
 
 Only calls subsequent operators if the value hasn't been previously emitted ever.
   
-- **`distinctKey<T>(key: string, comparator?: (a: T, b: T) => boolean): R`**
+#### `distinctKey<T>(key: string, comparator?: (a: T, b: T) => boolean): R`
 
 Only calls subsequent operators if the value at the given key hasn't been previously emitted ever.
 
-- **`distinctUntilChanged<T>(comparator?: (a: T, b: T) => boolean): R`**
+#### `distinctUntilChanged<T>(comparator?: (a: T, b: T) => boolean): R`
 
 Only calls subsequent operators if the value is different than the previous value.
 
-- **`distinctUntilKeyChanged<T>(key: string, comparator?: (a: T, b: T) => boolean): R`**
+#### `distinctUntilKeyChanged<T>(key: string, comparator?: (a: T, b: T) => boolean): R`
 
 Only calls subsequent operators if the value at the given key is different than the previous value.
 
-- **`delay(by?: number)`**
+#### `delay(by?: number)`
 
 Delays calling the next function in the pipe using `by` (milliseconds):
 
@@ -510,12 +513,12 @@ const fn = pipe( delay(100), log() );
 fn(3); // asynchronous logs 3, 100 ms after emitted
 ```
 
-- **`debounce(by?: number, leading?: boolean = false)`**
+#### `debounce(by?: number, leading?: boolean = false)`
 
 Debounces calls to the subsequent operator given using `by` (milliseconds).
 If *leading* is true then the function will be called immediately on first invocation and subsequent calls within `by` will be ignored.
 
-- **`throttle(by?: number, leading?: boolean)`**
+#### `throttle(by?: number, leading?: boolean)`
 
 Throttles calls to the subsequent operator using `by` (milliseconds)
 
