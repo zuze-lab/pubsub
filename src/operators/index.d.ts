@@ -44,10 +44,13 @@ export function pluck<T, K1 extends keyof T, K2 extends keyof T[K1], K3 extends 
 export function pluck<T, K1 extends keyof T, K2 extends keyof T[K1], K3 extends keyof T[K1][K2], K4 extends keyof T[K1][K2][K3], K5 extends keyof T[K1][K2][K3][K4]>(k1: K1, k2: K2, k3: K3, k4: K4, k5: K5): OperatorFn<T, T[K1][K2][K3][K4][K5]>;
 export function pluck<T, K1 extends keyof T, K2 extends keyof T[K1], K3 extends keyof T[K1][K2], K4 extends keyof T[K1][K2][K3], K5 extends keyof T[K1][K2][K3][K4], K6 extends keyof T[K1][K2][K3][K4][K5]>(k1: K1, k2: K2, k3: K3, k4: K4, k5: K5, k6: K6): OperatorFn<T, T[K1][K2][K3][K4][K5][K6]>;
 
+
 export function single<T>(): OperatorFn<T, T>
 export function skip<T>(n: number): OperatorFn<T, T>
+export function skipUntil<T>(arg: Promise<any>): OperatorFn<T, T>;
 export function stack<T>(minSize?: number, maxSize?: number): OperatorFn<T, T[]>
 export function take<T>(n: number): OperatorFn<T, T>
+export function takeUntil<T>(arg: Promise<any>): OperatorFn<T, T>;
 export function tap<T>(fn: (arg: T) => void): OperatorFn<T, T>
 export function throttle<T>(by: number): OperatorFn<T, T>
 export function startWith<T>(arg: T | Promise<T> | (() => (T | Promise<T>))): OperatorFn<T, T>

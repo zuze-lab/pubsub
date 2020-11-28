@@ -156,7 +156,7 @@ publish('comment',{ comment_id: 10, content: 'bye' }); // logs 'bye'
 </script>
 ```
 
-`pipe` and `operators` are ~~stolen from~~ inspired by the [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operator API.
+`pipe` and `operators` are ~~stolen from~~ inspired by the [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operator API, but without the complexity of schedulers or marble diagrams.
 
 ### Using Operators
 
@@ -311,6 +311,34 @@ fn(3); // logs 3
 fn(3); // no log
 ```
 
+- **`takeUntil<T>(promise: Promise<void>): T`**
+
+Calls the next function until the provided promise resolved
+
+```js
+const when = new Promise(res => setTimeout(res,2000));
+const fn = pipe( takeUntil(when), log() ) )
+fn(3); // logs 3
+fn(3); // logs 3
+// 2 seconds pass
+fn(3); // no log
+```
+
+- **`startWith<T>(T | Promise<T> | () => (T | Promise<T>)): T`**
+
+Immediately calls the next operator in the chain with the value:
+
+```js
+
+const fn = pipe( filter(i => i > 2), startWith(7), log() ); // 7 is logged immediately
+fn(1); // no log
+fn(3); // logs 3
+
+
+const fn = pipe ( filter(i => i > 2), startWith(() => new Promise(res => setTimeout(() => res(7))), log() );
+
+```
+
 - **`single<T>():T`** 
 
 Alias of `take(1)`
@@ -323,6 +351,19 @@ Only starts calling the next function after `num` calls
 const fn = pipe( skip(2), log() ) )
 fn(3); // no log
 fn(3); // no log
+fn(3); // logs 3
+```
+
+- **`skipUntil<T>(promise: Promise<void>): T`**
+
+Prevents calling the next function until the provided promise resolved
+
+```js
+const when = new Promise(res => setTimeout(res,2000));
+const fn = pipe( takeUntil(when), log() ) )
+fn(3); // no log
+fn(3); // no log
+// 2 seconds pass
 fn(3); // logs 3
 ```
 
