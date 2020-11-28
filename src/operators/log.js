@@ -1,3 +1,3 @@
 import tap from './tap';
 
-export default (fn = console.log) => tap(fn);
+export default () => tap(console.log);

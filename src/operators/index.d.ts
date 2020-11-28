@@ -32,7 +32,7 @@ export function distinctUntilChanged<T>(comparator?: (a: T, b: T) => boolean): O
 export function distinctUntilKeyChanged<T, R extends keyof T>(key: R, comparator?: (a: T[R], b: T[R]) => boolean): OperatorFn<T, T>
 export function every<T>(num: number): OperatorFn<T, T>
 export function filter<T>(filterFn: (arg: T) => boolean): OperatorFn<T, T>
-export function log<T>(logger?: (arg: T) => void): OperatorFn<T, T>
+export function log<T>(): OperatorFn<T, T>
 export function map<T, R>(mapper: (arg: T) => (R | Promise<R>)): OperatorFn<T, R>
 export function mapTo<R>(to: R): OperatorFn<any, R>
 export function pairwise<T>(): OperatorFn<T, [T, T]>
