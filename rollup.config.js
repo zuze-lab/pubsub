@@ -57,11 +57,10 @@ export default [
   },
 
   {
-    input: MAIN,
+    input: MAIN_OPERATORS,
     output: {
       file: 'build/esm/operators/index.js',
       format: 'esm',
-      name: MAIN_NAME,
     },
     plugins: [
       copy({
@@ -86,7 +85,6 @@ export default [
     output: {
       file: 'build/esm/index.js',
       format: 'esm',
-      name: MAIN_NAME,
     },
     plugins: [
       copy({
