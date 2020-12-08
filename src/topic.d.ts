@@ -9,6 +9,6 @@ type EventBus<T extends Topics> = {
     ) => Unsubscribe;
     publish: <R extends keyof T>(topic: R, data: T[R]) => void;
 }
-export const mqttMatcher: TopicMatcher;
+export const mqttMatcher: (published: string, subscribedTo: string) => boolean;
 declare const topic: <T extends Topics>(topicMatcher?: TopicMatcher) => EventBus<T>;
 export default topic;
