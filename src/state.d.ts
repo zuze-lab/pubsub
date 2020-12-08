@@ -1,7 +1,7 @@
 import { Subscriber, Unsubscribe } from "./pubsub";
 type State<T, R> = {
     getState: () => T,
-    setState: (data: R) => void,
+    setState: (data: R | Partial<R>) => void,
     subscribe: (subscriber: Subscriber<T>) => Unsubscribe;
 }
 
