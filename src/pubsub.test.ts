@@ -1,4 +1,4 @@
-import pubsub from './';
+import pubsub from './pubsub';
 
 jest.useFakeTimers();
 
@@ -25,9 +25,10 @@ describe('test', () => {
   });
 
   it('should publish', () => {
-    const bus = pubsub<Topics>();
+    const bus = pubsub<Topics['post']>();
+
     expect(() =>
-      bus.publish('post', {
+      bus.publish({
         post_id: 10,
         content: 'test',
       }),
@@ -35,21 +36,21 @@ describe('test', () => {
   });
 
   it('should publish with a subscriber', () => {
-    const bus = pubsub<Topics>();
+    const bus = pubsub<Topics['comment']>();
     const subscriber = jest.fn();
-    bus.subscribe('comment', subscriber);
+    bus.subscribe(subscriber);
     const comment = { comment_id: 10, content: 'fred', post_id: 12 };
-    bus.publish('comment', comment);
+    bus.publish(comment);
     expect(subscriber).toHaveBeenCalledWith(comment);
   });
 
   it('should unsubscribe', () => {
-    const bus = pubsub<Topics>();
+    const bus = pubsub<Topics['user_event']>();
     const subscriber = jest.fn();
-    const unsub = bus.subscribe('user_event', subscriber);
+    const unsub = bus.subscribe(subscriber);
     unsub();
     const user = { first_name: 'freddie', last_name: 'mercury', user_id: 10 };
-    bus.publish('user_event', user);
+    bus.publish(user);
     expect(subscriber).not.toHaveBeenCalled();
   });
 });
