@@ -72,7 +72,7 @@ The three utilities combined, built on top of each other, come in at a rather he
 Creates an `EventBus` of type `T`
 
 ```js
-import pubsub from '@zuze/pubsub';
+import { pubsub } from '@zuze/pubsub';
 
 const { publish, subscribe } = pubsub<string>();
 
@@ -277,7 +277,7 @@ publish('nums', 2); // logs 8
 Async operators are trivial:
 
 ```js
-import { topic } from '@zuze/pubsub';
+import topic from '@zuze/pubsub/topic';
 import { pipe, log } from '@zuze/pubsub/operators';
 
 const { publish, subscribe } = topic();
@@ -581,7 +581,7 @@ fn(3); // asynchronous logs 3, 100 ms after emitted
 This is similar, though not identical to [reselect] and really is just a combination of `map` + `distinctUntilChanged`
 
 ```js
-import { state } from '@zuze/pubsub';
+import state from '@zuze/pubsub/state';
 import { pipe, select, tap } from '@zuze/pubsub/operators';
 const { getState, setState, subscribe } = state({
     first:3,

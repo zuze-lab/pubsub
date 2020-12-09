@@ -1,6 +1,6 @@
 {
     "name": "@zuze/pubsub",
-    "version": "3.0.0",
+    "version": "3.0.3",
     "author": "akmjenkins",
     "license": "MIT",
     "repository": {
@@ -23,12 +23,13 @@
         "email": "akmjenkins@gmail.com"
     },
     "main": "index.js",
+    "modules": "index.js",
     "browser": "browser.min.js",
     "scripts": {
-        "dist": "yarn lint && yarn test && yarn build && cp -a package.json build && yarn pub",
+        "dist": "yarn lint && yarn test && yarn build && cp -a package.json build && cp -a README.md build && cp -a .npmignore build && yarn pub",
         "clean": "rimraf build",
         "build": "yarn clean && yarn babel:cjs && rollup -c",
-        "babel:cjs": "babel src -d build",
+        "babel:cjs": "babel src -d build --copy-files --no-copy-ignored",
         "lint": "eslint src/",
         "test:ci": "yarn test --coverage --coverageReporters=text-lcov | coveralls",
         "test": "jest --testPathPattern=test.ts --config jest.tsconfig.js",
