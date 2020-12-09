@@ -23,7 +23,7 @@
         "email": "akmjenkins@gmail.com"
     },
     "main": "index.js",
-    "modules": "index.js",
+    "module": "index.js",
     "browser": "browser.min.js",
     "scripts": {
         "dist": "yarn lint && yarn test && yarn build && cp -a package.json build && cp -a README.md build && cp -a .npmignore build && yarn pub",
