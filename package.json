@@ -5,7 +5,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/zuze-lab/pubsub"
+        "url": "https://github.com/zuze-lab/pubsub/tree/next"
     },
     "description": "A functional minimalist pubsub implementation with utilities",
     "keywords": [
