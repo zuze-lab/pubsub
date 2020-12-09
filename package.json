@@ -28,7 +28,8 @@
     "scripts": {
         "dist": "yarn lint && yarn test && yarn build && cp -a package.json build && yarn pub",
         "clean": "rimraf build",
-        "build": "yarn clean && rollup -c ",
+        "build": "yarn clean && yarn babel:cjs && rollup -c",
+        "babel:cjs": "babel src -d build",
         "lint": "eslint src/",
         "test:ci": "yarn test --coverage --coverageReporters=text-lcov | coveralls",
         "test": "jest --testPathPattern=test.ts --config jest.tsconfig.js",
