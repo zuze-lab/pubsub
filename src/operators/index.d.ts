@@ -53,7 +53,8 @@ export function skipUntil<T>(arg: Promise<any>): OperatorFn<T, T>;
 export function stack<T>(minSize?: number, maxSize?: number): OperatorFn<T, T[]>
 export function take<T>(n: number): OperatorFn<T, T>
 export function takeUntil<T>(arg: Promise<any>): OperatorFn<T, T>;
-export function tap<T>(fn: (arg: T) => void): OperatorFn<T, T>
+export function tap<T>(fn: (arg: T) => void): OperatorFn<T, T>;
+export function subscriber<T>(fn: (arg: T) => void): OperatorFn<T, T>;
 export function throttle<T>(by: number): OperatorFn<T, T>
 export function startWith<T>(arg: T | Promise<T> | (() => (T | Promise<T>))): OperatorFn<T, T>
 
@@ -155,3 +156,7 @@ export function select<T, R1, R2, R3, R4, R5, S>(
     selectorE: Selector<T, R5>,
     combiner: (arg: [R1, R2, R3, R4, R5]) => S
 ): OperatorFn<T, S>
+
+export function shallow<T = Record<string, any>>(comparator?: Comparator<T[keyof T]>): Comparator<T>;
+export function array<T extends any[]>(comparator?: Comparator<T[keyof T]>): Comparator<T>
+export function unordered<T extends any[]>(transform?: <R>(arg: T[keyof T]) => R): Comparator<T>

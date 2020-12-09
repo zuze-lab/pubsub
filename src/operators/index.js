@@ -27,3 +27,4 @@ export { default as throttle } from './throttle';
 export { default as createPipe, pipe } from './pipe';
 export { default as pipeable } from './pipeable';
 export { default as createSelector, select } from './select';
+export { shallow, array, unordered } from './utils';

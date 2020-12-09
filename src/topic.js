@@ -1,5 +1,4 @@
 import pubsub from './pubsub';
-import { pipe, filter, map } from './operators/index';
 
 const matcher = (a, b) => a === b;
 
@@ -12,11 +11,7 @@ export default test => {
     publish: (topic, data) => p.publish({ topic, data }),
     subscribe: (t, callback) =>
       p.subscribe(
-        pipe(
-          filter(({ topic }) => (test || matcher)(topic, t)),
-          map(({ data }) => data),
-          () => callback,
-        ),
+        ({ topic, data }) => (test || matcher)(topic, t) && callback(data),
       ),
   };
 };

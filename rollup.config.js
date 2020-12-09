@@ -3,9 +3,9 @@ import bundlesize from 'rollup-plugin-bundle-size';
 import { terser } from 'rollup-plugin-terser';
 
 const MAIN = 'src/index.js';
-const MAIN_NAME = 'pubsub';
+const MAIN_NAME = 'zuze';
 const MAIN_OPERATORS = 'src/operators/index.js';
-const MAIN_OPERATORS_NAME = 'pubsubPipe';
+const MAIN_OPERATORS_NAME = 'zuze';
 
 export default [
   // BROWSER
@@ -17,6 +17,7 @@ export default [
         sourcemap: true,
         format: 'iife',
         name: MAIN_NAME,
+        extend: true,
         plugins: [
           getBabelOutputPlugin({
             allowAllFormats: true,
@@ -42,6 +43,7 @@ export default [
         file: 'build/pipe.js',
         sourcemap: true,
         format: 'iife',
+        extend: true,
         name: MAIN_OPERATORS_NAME,
         plugins: [
           getBabelOutputPlugin({

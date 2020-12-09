@@ -28,13 +28,60 @@ Or just pull it in from the browser:
 ```html
 <script src="https://unpkg.com/@zuze/pubsub"></script>
 <script>
+    const { pubsub } = zuze;
     const { publish, subscribe } = pubsub();
+    subscribe(console.log);
+    publish('it works!'); // logs it works! in the console
+</script>
+```
+
+The core `pubsub` is extremely tiny and, to be honest, mostly useless. But it forms a core structure that can be extended with just a few lines to create other incredibly tiny and less-useless utilities, like a pubsub with topics:
+
+```html
+<script src="https://unpkg.com/@zuze/pubsub"></script>
+<script>
+    const { topic } = zuze;
+    const { publish, subscribe } = topic();
     subscribe('someEvent', console.log);
     publish('someEvent', 'it works!'); // logs it works! in the console
 </script>
 ```
 
+Or a super tiny state manager:
+
+```html
+<script src="https://unpkg.com/@zuze/pubsub"></script>
+<script>
+    const { state } = zuze;
+    const { getState, setState, subscribe } = state('joe');
+    console.log(getState()) // logs joe
+    const unsubscribe = subscribe(console.log) // logs joe
+    setState('jim'); // the above subscriber logs jim
+    unsubscribe();
+    setState('fred'); // nothing logged, we unsubscribed
+</script>
+```
+
+The three utilities combined, built on top of each other, come in at a rather hefty (heh) **400 bytes**.
+
+
 ### API
+
+- **`pubsub<T>(): EventBus<T>`**
+
+Creates an `EventBus` of type `T`
+
+```js
+import pubsub from '@zuze/pubsub';
+
+const { publish, subscribe } = pubsub<string>();
+
+const unsub = subscribe(console.log);
+publish('joe'); // logs joe
+unsub();
+publish('fred'); // no log
+
+```
 
 - **`pubsub<T extends Topics>(): EventBus<T>`**
 
@@ -114,26 +161,24 @@ unsub(); // no further events will be logged
 
 ## Subscribing with `pipe` and Operators
 
-You could stop here and have an great, incredibly small PubSub utility. But subscribing with a `pipe` and operators takes your functional PubSub system to the next level.
+You could stop here and have an great, incredibly small and flexible PubSub utility. But subscribing with a `pipe` and operators takes your functional PubSub and/or State management system to the next level. 
 
 ```js
 import pubsub from '@zuze/pubsub';
-import { createPipe, filter, subscriber } from '@zuze/pubsub/operators';
+import { pipe, filter, subscriber } from '@zuze/pubsub/operators';
 
-// creates a pipe that accepts operator functions that act on Topics['comment']
-const pipe = createPipe<Topics['comment']>();
 const { subscribe, publish } = pubsub<Topics>();
 
 subscribe(
     'comment', 
     pipe(
         filter(({ comment_id }) => comment_id === 10),
-        subscriber(({content}) => console.log(content))
+        subscriber(({ content }) => console.log(content))
     )
 );
 
-publish('comment',{ comment_id: 9, content: 'some comment' }); // no log
-publish('comment',{ comment_id: 10, content: 'bye' }); // logs 'bye'
+publish('comment', { comment_id: 9, content: 'some comment' }); // no log
+publish('comment', { comment_id: 10, content: 'bye' }); // logs 'bye'
 ```
 
 ### In the browser
@@ -142,8 +187,8 @@ publish('comment',{ comment_id: 10, content: 'bye' }); // logs 'bye'
 <script src="https://unpkg.com/@zuze/pubsub"></script>
 <script src="https://unpkg.com/@zuze/pubsub/pipe"></script>
 <script>
+    const { pubsub, map, subscriber, pipe } = zuze;
     const { publish, subscribe } = pubsub();
-    const { map, subscriber, pipe } = pubsubPipe;    
     subscribe(
         'someEvent', 
         pipe(
@@ -156,17 +201,17 @@ publish('comment',{ comment_id: 10, content: 'bye' }); // logs 'bye'
 </script>
 ```
 
-Perhaps counterintuitively, due to the way a pipe is constructed from operator functions, nothing ever "comes out" of a pipe, then end result is always `undefined`. If you want to call some external function at any point in the pipe, use the [subscriber](#subscribertfn-e-t--void-t) operator (an alias of [tap](#taptfn-e-t--void-t))
+Perhaps counterintuitively, due to the way a pipe is constructed from operator functions, nothing ever "comes out" of it, then end result is always `undefined`. If you want to call some external function at any point in the pipe, use the [subscriber](#subscribertfn-e-t--void-t) operator (an alias of [tap](#taptfn-e-t--void-t))
 
 
-`pipe` and `operators` are ~~stolen from~~ inspired by the [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operator API, but without the power or complexity of schedulers or marble diagrams.
+`pipe` and `operators` are ~~stolen from~~ inspired by the [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operator API, but without the power, complexity, or sheer size (our operators and utilities weigh less than 1/10th the size) of schedulers or marble diagrams.
 
 ### Using Operators
 
 ### `pipe<T>(...operators: OperatorFn<T,any>[])`
 
 
-When using typescript, you should create the pipe first using `createPipe`:
+When using typescript, if you need to create a pipe separately from a subscription and want to stay type-safe, you can use `createPipe`:
 
 ```ts
 import { createPipe } from '@zuze/pubsub/operators';
@@ -174,13 +219,16 @@ import { createPipe } from '@zuze/pubsub/operators';
 // creates a pipe whose operator functions act on SomeType
 const pipe = createPipe<SomeType>();
 const myPipe = pipe(...operatorFunctions);
+
+// and then later
+somePubSub.subscribe(myPipe);
 ```
 
-When using plain JavaScript, feel free to use `pipe` directly:
+If you're creating the pipe at subscription time, you can just use `pipe` directly and you'll stay typesafe
 
 ```js
 import { pipe } from '@zuze/pubsub/operators';
-const myPipe = pipe(...operatorFunctions);
+somePubSub.subscribe(pipe(...operatorFunctions))
 ```
 
 
@@ -197,14 +245,15 @@ import { log } from '@zuze/pubsub/operators';
 
 // greaterThan is an operator creator - a function that returns an operator.
 
+createOperator((...args) => event =>)
+
 // call next with the published event if it's greater than the user supplied number
 const greaterThan = num => next => event => event > num && next(event);
 
 // use like
-const { subscribe, publish } = pubsub<Topics>();
-const pipe = createPipe<Topics['number']>();
+const { subscribe, publish } = topic<Topics>();
 
-subscribe( 'nums', pipe( greaterThan(5), log() ));
+subscribe('nums', pipe( greaterThan(5), log() ));
 
 publish('nums', 4); // no log
 publish('nums', 8); // log's 8
@@ -212,12 +261,12 @@ publish('nums', 8); // log's 8
 const multiplyBy = num => next => event => next(event*num);
 
 // use like
-subscribe( 'nums', pipe( multiplyBy(4), log() ));
+subscribe('nums', pipe( multiplyBy(4), log() ));
 
 publish('nums',4); // logs 16
 
 // chain your custom operators!
-subscribe( 'nums', pipe( multiplyBy(4), greaterThan(5), log() ));
+subscribe('nums', pipe( multiplyBy(4), greaterThan(5), log() ));
 
 publish('nums', 1); // no log
 publish('nums', 2); // logs 8
@@ -228,10 +277,10 @@ publish('nums', 2); // logs 8
 Async operators are trivial:
 
 ```js
-import pubsub from '@zuze/pubsub';
+import { topic } from '@zuze/pubsub';
 import { pipe, log } from '@zuze/pubsub/operators';
 
-const { publish, subscribe } = pubsub();
+const { publish, subscribe } = topic();
 
 // call next with the published event IF it's greater than the user supplied number
 const callApiOperator = apiCall => next => async event => next(await apiCall(event));
@@ -525,6 +574,32 @@ Throttles calls to the subsequent operator using `by` (milliseconds)
 ```js
 const fn = pipe( delay(100), log() ); 
 fn(3); // asynchronous logs 3, 100 ms after emitted
+```
+
+#### `select(...selectorFunctions,resultFunc)`
+
+This is similar, though not identical to [reselect] and really is just a combination of `map` + `distinctUntilChanged`
+
+```js
+import { state } from '@zuze/pubsub';
+import { pipe, select, tap } from '@zuze/pubsub/operators';
+const { getState, setState, subscribe } = state({
+    first:3,
+    second:10
+});
+
+subscribe(
+    pipe(
+        select(
+            ({ first }) => first,
+            ({ second }) => second,
+            ([ first, second ]) => first + second
+        ),
+        tap(console.log)
+    )
+); // logs 13
+
+setState({third:9}); // doesn't log anything because arguments to the selector haven't changed
 ```
 
 
