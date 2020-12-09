@@ -1,6 +1,6 @@
 {
     "name": "@zuze/pubsub",
-    "version": "2.2.1",
+    "version": "3.0.0",
     "author": "akmjenkins",
     "license": "MIT",
     "repository": {
@@ -23,7 +23,6 @@
         "email": "akmjenkins@gmail.com"
     },
     "main": "index.js",
-    "module": "esm/index.js",
     "browser": "browser.min.js",
     "scripts": {
         "dist": "yarn lint && yarn test && yarn build && cp -a package.json build && yarn pub",
