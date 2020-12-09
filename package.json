@@ -1,6 +1,6 @@
 {
     "name": "@zuze/pubsub",
-    "version": "2.2.2",
+    "version": "2.2.3",
     "author": "akmjenkins",
     "license": "MIT",
     "repository": {
@@ -26,9 +26,9 @@
     "module": "esm/index.js",
     "browser": "browser.min.js",
     "scripts": {
-        "dist": "yarn lint && yarn test && yarn build && cp -a package.json build && yarn pub",
+        "dist": "yarn clean && yarn lint && yarn test && yarn build && cp -a package.json build && cp -a README.md build && yarn pub",
         "clean": "rimraf build",
-        "build": "yarn clean && rollup -c ",
+        "build": "rollup -c ",
         "lint": "eslint src/",
         "test:ci": "yarn test --coverage --coverageReporters=text-lcov | coveralls",
         "test": "jest --testPathPattern=test.ts --config jest.tsconfig.js",
