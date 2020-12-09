@@ -1,4 +1,4 @@
-import { pubsub } from './index';
+import pubsub from './pubsub';
 
 jest.useFakeTimers();
 
