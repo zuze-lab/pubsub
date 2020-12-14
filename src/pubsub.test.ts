@@ -53,4 +53,6 @@ describe('test', () => {
     bus.publish(user);
     expect(subscriber).not.toHaveBeenCalled();
   });
+
+  it('should cache', () => {});
 });

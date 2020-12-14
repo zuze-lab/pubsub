@@ -50,9 +50,11 @@ export function pluck<T, K1 extends keyof T, K2 extends keyof T[K1], K3 extends 
 export function single<T>(): OperatorFn<T, T>
 export function skip<T>(n: number): OperatorFn<T, T>
 export function skipUntil<T>(arg: Promise<any>): OperatorFn<T, T>;
+export function skipWhile<T>(arg: () => boolean): OperatorFn<T, T>;
 export function stack<T>(minSize?: number, maxSize?: number): OperatorFn<T, T[]>
 export function take<T>(n: number): OperatorFn<T, T>
 export function takeUntil<T>(arg: Promise<any>): OperatorFn<T, T>;
+export function takeWhile<T>(arg: () => boolean): OperatorFn<T, T>;
 export function tap<T>(fn: (arg: T) => void): OperatorFn<T, T>;
 export function subscriber<T>(fn: (arg: T) => void): OperatorFn<T, T>;
 export function throttle<T>(by: number): OperatorFn<T, T>

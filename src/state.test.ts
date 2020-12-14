@@ -1,4 +1,4 @@
-import state from './state';
+import state, { patch } from './state';
 
 describe('state', () => {
   it('should work', () => {
@@ -9,6 +9,7 @@ describe('state', () => {
     const spy = jest.fn();
     const container = state();
     container.setState('jim');
+    expect(container.getState()).toBe('jim');
   });
 
   it('should get state', () => {
@@ -25,5 +26,25 @@ describe('state', () => {
     spy.mockClear();
     container.setState(4);
     expect(spy).toHaveBeenCalledWith(4);
+  });
+
+  it('should NOT call a subscriber if the state has not changed', () => {
+    const spy = jest.fn();
+    const container = state({ a: 'b' });
+    container.subscribe(spy);
+    spy.mockClear();
+    container.setState(initial => initial);
+    expect(spy).not.toHaveBeenCalled();
+    container.setState(initial => ({ ...initial }));
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('should patch', () => {
+    const spy = jest.fn();
+    const container = state({ a: 'b', c: 'd' });
+    container.subscribe(spy);
+    spy.mockClear();
+    container.setState(patch({ a: 'd' }));
+    expect(spy).toHaveBeenCalledWith({ a: 'd', c: 'd' });
   });
 });
