@@ -62,7 +62,7 @@ Or a super tiny state manager:
 </script>
 ```
 
-The three utilities combined, built on top of each other, come in at a rather hefty (heh) **400 bytes**.
+The three utilities combined, built on top of each other, come in at a rather hefty (heh) **500 bytes**.
 
 
 ### API
@@ -209,7 +209,7 @@ It's worth mentioning that `pipe` and operators can be used with any of `pubsub`
 Perhaps counterintuitively, due to the way a pipe is constructed from operator functions, nothing ever "comes out" of it, then end result is always `undefined`. If you want to call some external function at any point in the pipe, use the [subscriber](#subscriber) operator (an alias of [tap](#tap))
 
 
-`pipe` and `operators` are ~~stolen from~~ inspired by the [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operator API, but without the power, size (our operators and utilities weigh less than 1/10th the size) or complexity of things like schedulers and marble diagrams.
+`pipe` and `operators` are ~~stolen from~~ inspired by the [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operator API, but without the power, size (our operators and utilities weigh less than 1/10th the size at 1100 bytes for the everything-included browser build) or complexity of things like schedulers and marble diagrams.
 
 
 ### `pipe<T>(...operators: OperatorFn[])`
