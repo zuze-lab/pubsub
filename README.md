@@ -1,9 +1,9 @@
 ## @zuze/pubsub
 
-[![npm version](https://img.shields.io/npm/v/@zuze/pubsub.svg)](https://npmjs.org/package/@zuze/pubsub)
-[![Coverage Status](https://coveralls.io/repos/github/zuze-lab/pubsub/badge.svg)](https://coveralls.io/github/zuze-lab/pubsub)
-[![Build Status](https://travis-ci.com/zuze-lab/pubsub.svg)](https://travis-ci.com/zuze-lab/pubsub)
-[![Bundle Phobia](https://badgen.net/bundlephobia/minzip/@zuze/pubsub)](https://bundlephobia.com/result?p=@zuze/pubsub)
+[![npm version](https://img.shields.io/npm/v/@zuze/pubsub/next.svg)](https://npmjs.org/package/@zuze/pubsub/v/next)
+[![Coverage Status](https://coveralls.io/repos/github/zuze-lab/pubsub/badge.svg?branch=next)](https://coveralls.io/github/zuze-lab/pubsub?branch=next)
+[![Build Status](https://travis-ci.com/zuze-lab/pubsub.svg?branch=next)](https://travis-ci.com/zuze-lab/pubsub)
+[![Bundle Phobia](https://badgen.net/bundlephobia/minzip/@zuze/pubsub@next)](https://bundlephobia.com/result?p=@zuze/pubsub@next)
 
 ## What is this?
 
@@ -28,20 +28,67 @@ Or just pull it in from the browser:
 ```html
 <script src="https://unpkg.com/@zuze/pubsub"></script>
 <script>
+    const { pubsub } = zuze;
     const { publish, subscribe } = pubsub();
+    subscribe(console.log);
+    publish('it works!'); // logs it works! in the console
+</script>
+```
+
+The core `pubsub` is extremely tiny and, to be honest, mostly useless. But it forms a core structure that can be extended with just a few lines to create other incredibly tiny and less-useless utilities, like a pubsub with topics:
+
+```html
+<script src="https://unpkg.com/@zuze/pubsub"></script>
+<script>
+    const { topic } = zuze;
+    const { publish, subscribe } = topic();
     subscribe('someEvent', console.log);
     publish('someEvent', 'it works!'); // logs it works! in the console
 </script>
 ```
 
+Or a super tiny state manager:
+
+```html
+<script src="https://unpkg.com/@zuze/pubsub"></script>
+<script>
+    const { state } = zuze;
+    const { getState, setState, subscribe } = state('joe');
+    console.log(getState()) // logs joe
+    const unsubscribe = subscribe(console.log) // logs joe
+    setState('jim'); // the above subscriber logs jim
+    unsubscribe();
+    setState('fred'); // nothing logged, we unsubscribed
+</script>
+```
+
+The three utilities combined, built on top of each other, come in at a rather hefty (heh) **500 bytes**.
+
+
 ### API
 
-- **`pubsub<T extends Topics>(): EventBus<T>`**
+- **`pubsub<T>(): EventBus<T>`**
+
+Creates an `EventBus` of type `T`
+
+```js
+import { pubsub } from '@zuze/pubsub';
+
+const { publish, subscribe } = pubsub<string>();
+
+const unsub = subscribe(console.log);
+publish('joe'); // logs joe
+unsub();
+publish('fred'); // no log
+
+```
+
+- **`topic<T extends Topics>(): EventBus<T>`**
 
 Create an `EventBus` of type T.
 
 ```js
-import pubsub from '@zuze/pubsub';
+import { topic } from '@zuze/pubsub';
 
 type Topics = {
     user_event: {
@@ -61,13 +108,15 @@ type Topics = {
     nums: number;
 };
 
-const { subscribe, publish } = pubsub<Topics>();
+const { subscribe, publish } = topic<Topics>();
+
+publish( 'post', { post_id: 10, content: 'My Post!' } )
 ```
 
+In the case of `topic`, `publish` and `subscribe` are typechecked for safety:
 
 - **`publish: <R extends keyof T>(topic: R, data: T[R], sync?: boolean) => void`**
 
-Broadcasts an entity to all subscribers on a given topic:
 
 ```js
 publish(
@@ -80,15 +129,14 @@ publish(
 );
 ```
 
-Take note of the optional third `sync` parameter. By default `@zuze/pubsub` broadcasts to all subscribers for a given topic **asynchronously** so as to prevent a single subscriber from potentially blocking any other subscriber. If you pass the third parameter as true, events will be broadcast **synchronously**.
-
 - **`subscribe: <R extends keyof T>(topic: R, subscriber: Subscriber<T[R]>) => Unsubscribe`**
 
 Subscribes to a topic and returns an unsubscribe function.
 
+e.g.
 ```js
-e.g. 
-const { subscribe, publish } = pubsub<Topics>();
+import { topic } from '@zuze/pubsub';
+const { subscribe, publish } = topic<Topics>();
 const unsub = subscribe('comment', comment => console.log('got comment',comment));
 publish(
     'comment',
@@ -114,26 +162,24 @@ unsub(); // no further events will be logged
 
 ## Subscribing with `pipe` and Operators
 
-You could stop here and have an great, incredibly small PubSub utility. But subscribing with a `pipe` and operators takes your functional PubSub system to the next level.
+You could stop here and have an great, incredibly small and flexible PubSub utility. But subscribing with a `pipe` and operators takes your functional PubSub and/or State management system to the next level. 
 
 ```js
-import pubsub from '@zuze/pubsub';
-import { createPipe, filter, subscriber } from '@zuze/pubsub/operators';
+import { topic } from '@zuze/pubsub';
+import { pipe, filter, subscriber } from '@zuze/pubsub/operators';
 
-// creates a pipe that accepts operator functions that act on Topics['comment']
-const pipe = createPipe<Topics['comment']>();
-const { subscribe, publish } = pubsub<Topics>();
+const { subscribe, publish } = topic<Topics>();
 
 subscribe(
     'comment', 
     pipe(
         filter(({ comment_id }) => comment_id === 10),
-        subscriber(({content}) => console.log(content))
+        subscriber(({ content }) => console.log(content))
     )
 );
 
-publish('comment',{ comment_id: 9, content: 'some comment' }); // no log
-publish('comment',{ comment_id: 10, content: 'bye' }); // logs 'bye'
+publish('comment', { comment_id: 9, content: 'some comment' }); // no log
+publish('comment', { comment_id: 10, content: 'bye' }); // logs 'bye'
 ```
 
 ### In the browser
@@ -142,8 +188,8 @@ publish('comment',{ comment_id: 10, content: 'bye' }); // logs 'bye'
 <script src="https://unpkg.com/@zuze/pubsub"></script>
 <script src="https://unpkg.com/@zuze/pubsub/pipe"></script>
 <script>
-    const { publish, subscribe } = pubsub();
-    const { map, subscriber, pipe } = pubsubPipe;    
+    const { pubsub, map, subscriber, pipe } = zuze;
+    const { publish, subscribe } = topic();
     subscribe(
         'someEvent', 
         pipe(
@@ -156,17 +202,20 @@ publish('comment',{ comment_id: 10, content: 'bye' }); // logs 'bye'
 </script>
 ```
 
-Perhaps counterintuitively, due to the way a pipe is constructed from operator functions, nothing ever "comes out" of a pipe, then end result is always `undefined`. If you want to call some external function at any point in the pipe, use the [subscriber](#subscribertfn-e-t--void-t) operator (an alias of [tap](#taptfn-e-t--void-t))
-
-
-`pipe` and `operators` are ~~stolen from~~ inspired by the [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operator API, but without the power or complexity of schedulers or marble diagrams.
+It's worth mentioning that `pipe` and operators can be used with any of `pubsub`, `state`, or `topic` pubsub utilities.
 
 ### Using Operators
 
-### `pipe<T>(...operators: OperatorFn<T,any>[])`
+Perhaps counterintuitively, due to the way a pipe is constructed from operator functions, nothing ever "comes out" of it, then end result is always `undefined`. If you want to call some external function at any point in the pipe, use the [subscriber](#subscriber) operator (an alias of [tap](#tap))
 
 
-When using typescript, you should create the pipe first using `createPipe`:
+`pipe` and `operators` are ~~stolen from~~ inspired by the [RxJS](https://rxjs-dev.firebaseapp.com/guide/operators) operator API, but without the power, size (our operators and utilities weigh less than 1/10th the size at 1100 bytes for the everything-included browser build) or complexity of things like schedulers and marble diagrams.
+
+
+### `pipe<T>(...operators: OperatorFn[])`
+
+
+When using typescript, if you need to create a pipe separately from a subscription and want to stay type-safe, you can use `createPipe`:
 
 ```ts
 import { createPipe } from '@zuze/pubsub/operators';
@@ -174,13 +223,16 @@ import { createPipe } from '@zuze/pubsub/operators';
 // creates a pipe whose operator functions act on SomeType
 const pipe = createPipe<SomeType>();
 const myPipe = pipe(...operatorFunctions);
+
+// and then later
+somePubSub.subscribe(myPipe);
 ```
 
-When using plain JavaScript, feel free to use `pipe` directly:
+If you're creating the pipe at subscription time, you can just use `pipe` directly and you'll stay typesafe
 
 ```js
 import { pipe } from '@zuze/pubsub/operators';
-const myPipe = pipe(...operatorFunctions);
+somePubSub.subscribe(pipe(...operatorFunctions))
 ```
 
 
@@ -197,14 +249,15 @@ import { log } from '@zuze/pubsub/operators';
 
 // greaterThan is an operator creator - a function that returns an operator.
 
+createOperator((...args) => event =>)
+
 // call next with the published event if it's greater than the user supplied number
 const greaterThan = num => next => event => event > num && next(event);
 
 // use like
-const { subscribe, publish } = pubsub<Topics>();
-const pipe = createPipe<Topics['number']>();
+const { subscribe, publish } = topic<Topics>();
 
-subscribe( 'nums', pipe( greaterThan(5), log() ));
+subscribe('nums', pipe( greaterThan(5), log() ));
 
 publish('nums', 4); // no log
 publish('nums', 8); // log's 8
@@ -212,12 +265,12 @@ publish('nums', 8); // log's 8
 const multiplyBy = num => next => event => next(event*num);
 
 // use like
-subscribe( 'nums', pipe( multiplyBy(4), log() ));
+subscribe('nums', pipe( multiplyBy(4), log() ));
 
 publish('nums',4); // logs 16
 
 // chain your custom operators!
-subscribe( 'nums', pipe( multiplyBy(4), greaterThan(5), log() ));
+subscribe('nums', pipe( multiplyBy(4), greaterThan(5), log() ));
 
 publish('nums', 1); // no log
 publish('nums', 2); // logs 8
@@ -228,10 +281,10 @@ publish('nums', 2); // logs 8
 Async operators are trivial:
 
 ```js
-import pubsub from '@zuze/pubsub';
+import topic from '@zuze/pubsub/topic';
 import { pipe, log } from '@zuze/pubsub/operators';
 
-const { publish, subscribe } = pubsub();
+const { publish, subscribe } = topic();
 
 // call next with the published event IF it's greater than the user supplied number
 const callApiOperator = apiCall => next => async event => next(await apiCall(event));
@@ -280,126 +333,78 @@ const bufferCount = (size,every) => next => pipe(
 );
 ```
 
+### Testing Operators
+
+One thing I find tricky about RxJS is testing. Again, `@zuze/pubsub` operators don't contain the power that comes with RxJS, but it also doesn't come the complexity. Testing pipe's and operators is usually easily achieved using a simple mock function:
+
+```js
+import { pipe, tap, filter } from '@zuze/pubsub/operators';
+
+describe('my pipe test',() => {
+
+    it('should work',() => {
+        const spy = jest.fn();
+        const myPipe = pipe ( filter(e => e < 10), ...some more operators, tap(spy) );
+        myPipe(someValue); // call your pipe
+        expect(spy).toHaveBeenCalledWith(...); // check to see if your spy was called appropriately
+    })
+
+})
+```
+
 ### List of Operators
 
-We tried to stay as close as possible to RxJS operating naming, considering we're not in an observable environment.
-With that in mind, here's the list:
+You'll find these operators, where applicable, are mostly similar to [RxJS operators](https://rxjs-dev.firebaseapp.com/guide/operators)
 
-#### `map<T,R>(mapper: (e: T) => R): R`
+- [bufferCount](#bufferCount)
+- [count](#count)
+- [debounce](#debounce)
+- [delay](#api)
+- [distinct](#distinct)
+- [distinctKey](#distinctKey)
+- [distinctUntilChanged](#distinctUntilChanged)
+- [distinctUntilKeyChanged](#distinctUntilKeyChanged)
+- [every](#every)
+- [filter](#filter)
+- [log](#log)
+- [map](#map)
+- [mapTo](#mapTo)
+- [pairwise](#pairwise)
+- [pluck](#pluck)
+- [select](#select)
+- [single](#single)
+- [skip](#skip)
+- [skipUntil](#skipUntil)
+- [skipWhile](#skipWhile)
+- [stack](#stack)
+- [startWith](#startWith)
+- [subscriber](#subscriber)
+- [take](#take)
+- [takeUntil](#takeUntil)
+- [takeWhile](#takeWhile)
+- [tap](#tap)
+- [throttle](#throttle)
 
-Transforms the emitted event into a new value using a function before passing it to the next function:
+#### `bufferCount<T>(size?: number, every?: number): T[]`
+<a name="bufferCount"></a>
 
-```js
-const fn = pipe( map(e => e*2), log() ) )
-fn(3); // logs 6
-```
-
-#### `mapTo<R>(mapper: () => R): R`
-
-Transforms the emitted event into a new value before passing it to the next function
-
-```js
-const fn = pipe( map('joe'), log() ) )
-fn(3); // logs 'joe'
-```
-
-#### `take<T>(num: number): T`
-
-Stops calling the next function after `num`
-
-```js
-const fn = pipe( take(2), log() ) )
-fn(3); // logs 3
-fn(3); // logs 3
-fn(3); // no log
-```
-
-#### `takeUntil<T>(promise: Promise<void>): T`
-
-Calls the next function until the provided promise resolved
-
-```js
-const when = new Promise(res => setTimeout(res,2000));
-const fn = pipe( takeUntil(when), log() ) )
-fn(3); // logs 3
-fn(3); // logs 3
-// 2 seconds pass
-fn(3); // no log
-```
-
-#### `startWith<T>(T | Promise<T> | () => (T | Promise<T>)): T`
-
-Immediately calls the next operator in the chain with the value:
+Calls the next operator when at least `size` events have been emitted with an array of `size`. If `every` is provided, will only call the next operator when the current call number%every is 0.
 
 ```js
+const fn = pipe( bufferCount(2,3), log() ); 
 
-const fn = pipe( filter(i => i > 2), startWith(7), log() ); // 7 is logged immediately
 fn(1); // no log
-fn(3); // logs 3
+fn(2); // no log
+fn(3); // logs [2,3]
+fn(4); // no log
+fn(5); // no log
+fn(6); // logs [5,6]
+fn(7); // no log
 
-
-const fn = pipe ( filter(i => i > 2), startWith(() => new Promise(res => setTimeout(() => res(7))), log() );
-
-```
-
-#### `single<T>():T`
-
-Alias of `take(1)`
-
-#### `skip<T>(num: number): T`
-
-Only starts calling the next function after `num` calls
-
-```js
-const fn = pipe( skip(2), log() ) )
-fn(3); // no log
-fn(3); // no log
-fn(3); // logs 3
-```
-
-#### `skipUntil<T>(promise: Promise<void>): T`
-
-Prevents calling the next function until the provided promise resolved
-
-```js
-const when = new Promise(res => setTimeout(res,2000));
-const fn = pipe( takeUntil(when), log() ) )
-fn(3); // no log
-fn(3); // no log
-// 2 seconds pass
-fn(3); // logs 3
-```
-
-#### `tap<T>(fn: (e: T) => void): T`
-
-Calls it's function argument with the emitted event and continues calling the next function in the pipe:
-
-```js
-const fn = pipe( tap(e => console.log(e*2)), log() ) )
-fn(3); // logs 6, then logs 3
-```
-
-#### `subscriber<T>(fn: (e: T) => void): T`
-
-Alias of `tap`
-
-#### `log<T>(): T`
-
-Alias of `tap(console.log)`
-
-#### `every<T>(num: number): T`
-
-Only calls the subsequent function in the pipe when a modulo of `num` has been admitted.
-
-```js
-const fn = pipe( every(2), log() ); // only proceed after every second event
-fn(3); // no log
-fn(3); // logs 3
-fn(3); // no log
-fn(3); // logs 3
 ```
 
 #### `count<T>(startAt?: number): [number,T]`
+<a name="count"></a>
 
 Adds in the number of events that have been emitted when calling the next function in the chain:
 
@@ -411,9 +416,256 @@ fn(3); // logs [2,3]
 fn(3); // logs [3,3]
 ```
 
-#### `stack<T>(minSize?: number, maxSize?: number): T[]`
+#### `debounce(by?: number, leading?: boolean = false)`
 
-Calls the next operator with an array of all previously emitted events. Will not call the next operator until the stack reaches `minSize` (defaults to 1). Will call the next operator with a maximum array length of `maxSize` (defaults to all).
+Debounces calls to the subsequent operator given using `by` (milliseconds).
+If *leading* is true then the function will be called immediately on first invocation and subsequent calls within `by` will be ignored.
+
+```js
+const fn = pipe( debounce(100), log() );
+fn(3); // after 100ms, logs 3
+
+fn(3);
+fn(3);
+fn(3);
+fn(3); // after 100ms, logs 3, just one time
+
+
+
+const fn2 = pipe( debounce(100,true), log() )
+fn(3); // logs three immediately
+fn(3);
+fn(3);
+fn(3);  // doesn't log again
+```
+
+#### `delay(by?: number)`
+<a name="delay"></a>
+
+Delays calling the next function in the pipe using `by` (milliseconds):
+
+```js
+const fn = pipe( delay(100), log() ); 
+fn(3);
+fn(3);
+fn(3);
+fn(3);
+
+// logs "3" 4 times, 100ms after each invocation
+```
+
+#### `distinct<T>(comparator?: (a: T, b: T) => boolean): R`
+<a name="distinct"></a>
+
+Only calls subsequent operators if the value hasn't been previously emitted ever.
+
+```js
+const fn = pipe (distinct(),log());
+
+fn(3); // logs 3
+fn(4); // logs 4
+fn(3); // doesn't log, 3 is not distinct
+```
+  
+#### `distinctKey<T>(key: string, comparator?: (a: T, b: T) => boolean): R`
+<a name="distinctKey"></a>
+
+Only calls subsequent operators if the value at the given key hasn't been previously emitted ever.
+
+```js
+const fn = pipe (distinctKey('post_id'),log());
+
+fn({ post_id: 10 }); // logs { post_id: 10 }
+fn({ post_id: 9 }); // logs { post_id: 10 }
+fn({ post_id: 10 }); // doesn't log, value at post_id is not distinct
+```
+
+#### `distinctUntilChanged<T>(comparator?: (a: T, b: T) => boolean): R`
+<a name="distinctUntilChanged"></a>
+
+Only calls subsequent operators if the value is different than the previous value.
+
+```js
+const fn = pipe (distinctUntilChanged(),log());
+
+fn(3); // logs 3
+fn(3); // doesn't log, 3 is same as previous
+fn(4); // logs 4
+```
+
+#### `distinctUntilKeyChanged<T>(key: string, comparator?: (a: T, b: T) => boolean): R`
+<a name="distinctUntilKeyChanged"></a>
+
+Only calls subsequent operators if the value at the given key is different than the previous value.
+
+```js
+const fn = pipe (distinctUntilKeyChanged('post_id'),log());
+
+fn({ post_id: 10 }); // logs { post_id: 10 }
+fn({ post_id: 10 }); // logs { post_id: 10 }
+fn({ post_id: 9 }); // logs { post_id: 9}
+```
+
+#### `every<T>(num: number): T`
+<a name="every"></a>
+
+Only calls the subsequent function in the pipe when a modulo of `num` has been admitted.
+
+```js
+const fn = pipe( every(2), log() ); // only proceed after every second event
+fn(3); // no log
+fn(3); // logs 3
+fn(3); // no log
+fn(3); // logs 3
+```
+
+#### `filter<T>(filterFn: (e: T) => boolean): T`
+<a name="filter"></a>
+
+The provided filter function controls whether to calling the next operator in the pipe depending on if it returns true or false
+Note: This operator is used internally to create a lot of the other operators which provide filtering functionality
+
+```js
+const fn = pipe( filter(e => e > 2), log() )
+fn(1); // no log
+fn(3); // logs 3
+```
+
+#### `log<T>(): T`
+<a name="log"></a>
+
+Alias of [`tap(console.log)`](#tap)
+
+#### `map<T,R>(mapper: (e: T) => R): R`
+<a name="map"></a>
+
+Transforms the emitted event into a new value **using a function** before passing it to the next function:
+
+```js
+const fn = pipe( map(e => e*2), log() ) )
+fn(3); // logs 6
+```
+
+Note: If the function provided to `map` returns a promise it will wait for the promise to resulve return the resolved value of the promise to the next operator.
+
+#### `mapTo<R>(value: R): R`
+<a name="mapTo"></a>
+
+Transforms the emitted event into a new value before passing it to the next function
+
+```js
+const fn = pipe( map('joe'), log() ) )
+fn(3); // logs 'joe'
+```
+
+#### `pairwise<T>(): T[]`
+<a name="pairwise"></a>
+
+Calls the next operator with an array containing the most recent emitted event (last element) and the event emitted previous to this. 
+
+Note: This operator will NOT call the subsequent operator until at least 2 events have been emitted.
+
+```js
+const fn = pipe( pairwise(), log() );
+fn(3); // no log
+fn(4); // logs [3,4]
+```
+
+#### `pluck<T,R>(...keys: string[]): R`
+<a name="pluck"></a>
+
+Plucks value from the object the function was called with based on the given keys:
+
+```js
+const fn = pipe ( pluck( 'comment', 'created_on' ), log() );
+fn({
+    comment: {
+        created_on: 1606101991,
+        content: 'hi'
+    }
+}) // logs 1606101991
+```
+
+#### `select(...selectorFunctions,resultFunc)`
+
+Convenience operator which is just a combination of [`map`](#map) + [`distinctUntilChanged`](#distinctUntilChanged)
+Inspired by [`reselect`](https://github.com/reduxjs/reselect)
+
+```js
+import state from '@zuze/pubsub/state';
+import { pipe, select, tap } from '@zuze/pubsub/operators';
+const { getState, setState, subscribe } = state({
+    first:3,
+    second:10
+});
+
+subscribe(
+    pipe(
+        select(
+            ({ first }) => first,
+            ({ second }) => second,
+            ([ first, second ]) => first + second
+        ),
+        tap(console.log)
+    )
+); // logs 13
+
+setState({third:9}); // doesn't log anything because arguments to the selector haven't changed
+```
+
+#### `single<T>():T`
+<a name="take"></a>
+
+Alias of [`take(1)`](#take)
+
+#### `skip<T>(num: number): T`
+<a name="skip"></a>
+
+Only starts calling the next function after `num` calls
+
+```js
+const fn = pipe( skip(2), log() ) )
+fn(3); // no log
+fn(3); // no log
+fn(3); // logs 3
+```
+
+#### `skipUntil<T>(promise: Promise<void>): T`
+<a name="skipUntil"></a>
+
+Prevents calling the next function until the provided promise resolved
+
+```js
+const when = new Promise(res => setTimeout(res,2000));
+const fn = pipe( skipUntil(when), log() ) )
+fn(3); // no log
+fn(3); // no log
+// 2 seconds pass
+fn(3); // logs 3
+```
+
+#### `skipWhile<T>(getValue: () => boolean): T`
+<a name="skipWhile"></a>
+
+Prevents calling the next function if the getter returns true.
+
+```js
+let someValue = true;
+const when = () => someValue;
+const fn = pipe( skipWhile(when), log() ) )
+fn(3); // no log
+fn(3); // no log
+someValue = true;
+// 2 seconds pass
+fn(3); // logs 3
+```
+
+#### `stack<T>(minSize?: number, maxSize?: number): T[]`
+<a name="stack"></a>
+
+Calls the next operator with an array of previously emitted events. Will not call the next operator until the stack reaches `minSize` (defaults to 1). Will call the next operator with a maximum array length of `maxSize` (defaults to all).
+
+Related: [`bufferCount`](#bufferCount)
 
 ```js
 const fn = pipe( stack(), log() ); 
@@ -441,84 +693,86 @@ fn(5); // logs [4,5]
 
 ```
 
-#### `bufferCount<T>(size?: number, every?: number): T[]`
+#### `startWith<T>(T | Promise<T> | () => (T | Promise<T>)): T`
+<a name="startWith"></a>
 
-Calls the next operator when at least `size` events have been emitted with an array of `size`. If `every` is provided, will only call the next operator when the current call number%every is 0.
+Immediately calls the next operator in the chain with the value (or resolved value, in the case of a Promise)
 
 ```js
-const fn = pipe( bufferCount(2,3), log() ); 
 
+const fn = pipe( filter(i => i > 2), startWith(7), log() ); // 7 is logged immediately
 fn(1); // no log
-fn(2); // no log
-fn(3); // logs [2,3]
-fn(4); // no log
-fn(5); // no log
-fn(6); // logs [5,6]
-fn(7); // no log
+fn(3); // logs 3
+
+
+const fn = pipe ( filter(i => i > 2), startWith(() => new Promise(res => setTimeout(() => res(7))), log() );
 
 ```
 
-#### `pairwise<T>(): T[]`
+#### `subscriber<T>(fn: (e: T) => void): T`
+<a name="subscriber"></a>
 
-Calls the next operator with an array containing the most recent emitted event (last element) and the event emitted previous to this. 
+Alias of [`tap`](#tap)
 
-Note: This operator will NOT call the subsequent operator until at least 2 events have been emitted.
 
-#### `filter<T>(filterFn: (e: T) => boolean): T`
+#### `take<T>(num: number): T`
+<a name="take"></a>
 
-The provided filter function controls whether to calling the next operator in the pipe depending on if it returns true or false
+Stops calling the next function after `num`
 
 ```js
-const fn = pipe( filter(e => e > 2), log() )
-fn(1); // no log
+const fn = pipe( take(2), log() ) )
+fn(3); // logs 3
+fn(3); // logs 3
+fn(3); // no log
+```
+
+#### `takeUntil<T>(promise: Promise<void>): T`
+<a name="takeUntil"></a>
+
+Calls the next function until the provided promise resolved
+
+```js
+const when = new Promise(res => setTimeout(res,2000));
+const fn = pipe( takeUntil(when), log() ) )
+fn(3); // logs 3
+fn(3); // logs 3
+// 2 seconds pass
+fn(3); // no log
+```
+
+#### `takeWhile<T>(getValue: () => boolean): T`
+<a name="takeWhile"></a>
+
+Prevents calling the next function if the getter returns false.
+
+
+```js
+let someValue = true;
+const when = () => someValue;
+const fn = pipe( skipWhile(when), log() ) )
+fn(3); // no log
+fn(3); // no log
+someValue = true;
+// 2 seconds pass
 fn(3); // logs 3
 ```
 
-#### `pluck<T,R>(...keys: string[]): R`
+Note: A keen observer will notice that takeWhile is an alias for [filter](#filter).
 
-Plucks value from the object the function was called with based on the given keys:
+#### `tap<T>(fn: (e: T) => void): T`
+<a name="tap"></a>
 
-```js
-const fn = pipe ( pluck( 'comment', 'created_on' ), log() );
-fn({
-    comment: {
-        created_on: 1606101991,
-        content: 'hi'
-    }
-}) // logs 1606101991
-```
-
-#### `distinct<T>(comparator?: (a: T, b: T) => boolean): R`
-
-Only calls subsequent operators if the value hasn't been previously emitted ever.
-  
-#### `distinctKey<T>(key: string, comparator?: (a: T, b: T) => boolean): R`
-
-Only calls subsequent operators if the value at the given key hasn't been previously emitted ever.
-
-#### `distinctUntilChanged<T>(comparator?: (a: T, b: T) => boolean): R`
-
-Only calls subsequent operators if the value is different than the previous value.
-
-#### `distinctUntilKeyChanged<T>(key: string, comparator?: (a: T, b: T) => boolean): R`
-
-Only calls subsequent operators if the value at the given key is different than the previous value.
-
-#### `delay(by?: number)`
-
-Delays calling the next function in the pipe using `by` (milliseconds):
+Calls it's function argument with the emitted event and continues calling the next function in the pipe:
 
 ```js
-const fn = pipe( delay(100), log() ); 
-fn(3); // asynchronous logs 3, 100 ms after emitted
+const fn = pipe( tap(e => console.log(e*2)), log() ) )
+fn(3); // logs 6, then logs 3
 ```
 
-#### `debounce(by?: number, leading?: boolean = false)`
-
-Debounces calls to the subsequent operator given using `by` (milliseconds).
-If *leading* is true then the function will be called immediately on first invocation and subsequent calls within `by` will be ignored.
 
 #### `throttle(by?: number, leading?: boolean)`
+<a name="throttle"></a>
 
 Throttles calls to the subsequent operator using `by` (milliseconds)
 

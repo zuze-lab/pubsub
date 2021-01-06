@@ -1,4 +1,5 @@
 import distinct from './distinct';
+import { compare } from './utils';
 
-export default (key, comparator = (a, b) => a === b) =>
-  distinct((a, b) => comparator(a[key], b[key]));
+export default (key, comparator) =>
+  distinct((a, b) => compare(comparator, a[key], b[key]));

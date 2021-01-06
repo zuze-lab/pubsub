@@ -1,109 +1,13 @@
-import babel, { getBabelOutputPlugin } from '@rollup/plugin-babel';
-import resolve from '@rollup/plugin-node-resolve';
+import { getBabelOutputPlugin } from '@rollup/plugin-babel';
 import bundlesize from 'rollup-plugin-bundle-size';
 import { terser } from 'rollup-plugin-terser';
-import copy from 'rollup-plugin-copy';
 
 const MAIN = 'src/index.js';
-const MAIN_NAME = 'pubsub';
+const MAIN_NAME = 'zuze';
 const MAIN_OPERATORS = 'src/operators/index.js';
-const MAIN_OPERATORS_NAME = 'pubsubPipe';
+const MAIN_OPERATORS_NAME = 'zuze';
 
 export default [
-  {
-    input: MAIN,
-    output: {
-      file: 'build/index.js',
-      format: 'cjs',
-      name: MAIN_NAME,
-      exports: 'default',
-    },
-    plugins: [
-      copy({
-        targets: [{ src: './src/index.d.ts', dest: 'build' }],
-      }),
-      resolve(),
-      babel({
-        babelHelpers: 'runtime',
-        plugins: ['@babel/plugin-transform-runtime'],
-      }),
-      bundlesize(),
-    ],
-  },
-
-  {
-    input: MAIN_OPERATORS,
-    output: {
-      file: 'build/operators/index.js',
-      format: 'cjs',
-      name: MAIN_OPERATORS_NAME,
-    },
-    plugins: [
-      copy({
-        targets: [
-          {
-            src: './src/operators/index.d.ts',
-            dest: 'build/operators',
-          },
-        ],
-      }),
-      resolve(),
-      babel({
-        babelHelpers: 'runtime',
-        plugins: [['@babel/plugin-transform-runtime', { useESModules: true }]],
-      }),
-      bundlesize(),
-    ],
-  },
-
-  {
-    input: MAIN_OPERATORS,
-    output: {
-      file: 'build/esm/operators/index.js',
-      format: 'esm',
-    },
-    plugins: [
-      copy({
-        targets: [
-          {
-            src: './src/operators/index.d.ts',
-            dest: 'build/esm/operators',
-          },
-        ],
-      }),
-      resolve(),
-      babel({
-        babelHelpers: 'runtime',
-        plugins: [['@babel/plugin-transform-runtime', { useESModules: true }]],
-      }),
-      bundlesize(),
-    ],
-  },
-
-  {
-    input: MAIN,
-    output: {
-      file: 'build/esm/index.js',
-      format: 'esm',
-    },
-    plugins: [
-      copy({
-        targets: [
-          {
-            src: './src/index.d.ts',
-            dest: 'build/esm',
-          },
-        ],
-      }),
-      resolve(),
-      babel({
-        babelHelpers: 'runtime',
-        plugins: [['@babel/plugin-transform-runtime', { useESModules: true }]],
-      }),
-      bundlesize(),
-    ],
-  },
-
   // BROWSER
   {
     input: MAIN,
@@ -113,6 +17,7 @@ export default [
         sourcemap: true,
         format: 'iife',
         name: MAIN_NAME,
+        extend: true,
         plugins: [
           getBabelOutputPlugin({
             allowAllFormats: true,
@@ -138,6 +43,7 @@ export default [
         file: 'build/pipe.js',
         sourcemap: true,
         format: 'iife',
+        extend: true,
         name: MAIN_OPERATORS_NAME,
         plugins: [
           getBabelOutputPlugin({

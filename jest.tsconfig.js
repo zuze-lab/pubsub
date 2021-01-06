@@ -3,4 +3,5 @@ module.exports = {
     '^.+\\.jsx?$': require.resolve('babel-jest'),
     '^.+\\.ts?$': 'ts-jest',
   },
+  rootDir: './src',
 };
