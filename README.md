@@ -1,9 +1,9 @@
 ## @zuze/pubsub
 
-[![npm version](https://img.shields.io/npm/v/@zuze/pubsub/next.svg)](https://npmjs.org/package/@zuze/pubsub/v/next)
-[![Coverage Status](https://coveralls.io/repos/github/zuze-lab/pubsub/badge.svg?branch=next)](https://coveralls.io/github/zuze-lab/pubsub?branch=next)
-[![Build Status](https://travis-ci.com/zuze-lab/pubsub.svg?branch=next)](https://travis-ci.com/zuze-lab/pubsub)
-[![Bundle Phobia](https://badgen.net/bundlephobia/minzip/@zuze/pubsub@next)](https://bundlephobia.com/result?p=@zuze/pubsub@next)
+[![npm version](https://img.shields.io/npm/v/@zuze/pubsub)](https://npmjs.org/package/@zuze/pubsub/)
+[![Coverage Status](https://coveralls.io/repos/github/zuze-lab/pubsub/badge.svg)](https://coveralls.io/github/zuze-lab/pubsub)
+[![Build Status](https://travis-ci.com/zuze-lab/pubsub.svg)](https://travis-ci.com/zuze-lab/pubsub)
+[![Bundle Phobia](https://badgen.net/bundlephobia/minzip/@zuze/pubsub)](https://bundlephobia.com/result?p=@zuze/pubsub)
 
 ## What is this?
 
