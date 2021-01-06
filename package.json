@@ -1,11 +1,15 @@
 {
     "name": "@zuze/pubsub",
+<<<<<<< HEAD
     "version": "2.2.3",
+=======
+    "version": "3.1.0",
+>>>>>>> next
     "author": "akmjenkins",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/zuze-lab/pubsub"
+        "url": "https://github.com/zuze-lab/pubsub/tree/next"
     },
     "description": "A functional minimalist pubsub implementation with utilities",
     "keywords": [
@@ -23,12 +27,19 @@
         "email": "akmjenkins@gmail.com"
     },
     "main": "index.js",
-    "module": "esm/index.js",
+    "module": "index.js",
     "browser": "browser.min.js",
     "scripts": {
+<<<<<<< HEAD
         "dist": "yarn clean && yarn lint && yarn test && yarn build && cp -a package.json build && cp -a README.md build && yarn pub",
         "clean": "rimraf build",
         "build": "rollup -c ",
+=======
+        "dist": "yarn lint && yarn test && yarn build && cp -a package.json build && cp -a README.md build && cp -a .npmignore build && yarn pub",
+        "clean": "rimraf build",
+        "build": "yarn clean && yarn babel && rollup -c",
+        "babel": "babel src -d build --copy-files --no-copy-ignored",
+>>>>>>> next
         "lint": "eslint src/",
         "test:ci": "yarn test --coverage --coverageReporters=text-lcov | coveralls",
         "test": "jest --testPathPattern=test.ts --config jest.tsconfig.js",
@@ -47,6 +58,7 @@
         "@typescript-eslint/parser": "^4.8.1",
         "babel-eslint": "^10.0.3",
         "babel-jest": "^25.1.0",
+        "babel-plugin-add-module-exports": "^1.0.4",
         "coveralls": "^3.0.9",
         "eslint": "^6.4.0",
         "eslint-config-prettier": "^6.3.0",

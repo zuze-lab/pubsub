@@ -16,13 +16,17 @@ export { default as pluck } from './pluck';
 export { default as single } from './single';
 export { default as skip } from './skip';
 export { default as skipUntil } from './skipUntil';
+export { default as skipWhile } from './skipWhile';
 export { default as stack } from './stack';
 export { default as startWith } from './startWith';
 export { default as subscriber } from './tap'; // alias
 export { default as take } from './take';
 export { default as takeUntil } from './takeUntil';
+export { default as takeWhile } from './takeWhile';
 export { default as tap } from './tap';
 export { default as throttle } from './throttle';
 
 export { default as createPipe, pipe } from './pipe';
 export { default as pipeable } from './pipeable';
+export { default as createSelector, select } from './select';
+export { shallow, array, unordered } from './utils';

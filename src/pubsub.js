@@ -1,15 +1,16 @@
-export default () => {
-  const subscribers = {};
+export default opts => {
+  const { cacheSize = 0 } = opts || {};
+  const cache = [];
+  const subscribers = new Set();
   return {
-    subscribe(topic, subscriber) {
-      const current = (subscribers[topic] = (
-        subscribers[topic] || new Set()
-      ).add(subscriber));
-      return () => current.delete(subscriber);
+    subscribe: subscriber => {
+      cache.forEach(subscriber);
+      subscribers.add(subscriber);
+      return () => subscribers.delete(subscriber);
     },
-    publish(topic, data) {
-      const call = f => f(data);
-      (subscribers[topic] || []).forEach(call);
+    publish: data => {
+      if (cacheSize) cache.splice(0, cache.length - cacheSize, data);
+      subscribers.forEach(c => c(data));
     },
   };
 };
